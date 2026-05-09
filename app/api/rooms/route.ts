@@ -75,10 +75,12 @@ export async function POST(request: NextRequest) {
       lastWord: '',
       usedWords: [],
       usedCategories: [],
+      standby: [],
       votes: {},
       scores: { [hostName.trim()]: 0 },
       result: null,
       turnOrder: {},
+      readyStartedAt: 0,
       updatedAt: Date.now(),
     };
 

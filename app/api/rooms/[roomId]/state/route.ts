@@ -16,6 +16,7 @@ export async function GET(
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
+    const isStandby = room.standby.includes(playerName);
     const playerData = room.players[playerName];
     const myRole: 'word' | 'imposter' | '' = playerData?.role ?? '';
     const myTurn = playerData?.turn ?? 0;
@@ -24,13 +25,7 @@ export async function GET(
     let myWord = '';
     if (room.phase === 'reveal' || room.phase === 'result') {
       if (myRole === 'imposter') {
-        if (room.mode === 'super') {
-          // Super mode: imposter sees their own (different) word
-          myWord = room.imposterWord;
-        } else {
-          // Classic mode: imposter sees nothing
-          myWord = '';
-        }
+        myWord = room.mode === 'super' ? room.imposterWord : '';
       } else if (myRole === 'word') {
         myWord = room.word;
       }
@@ -39,10 +34,7 @@ export async function GET(
     // Strip role info from players
     const strippedPlayers: PlayerStateView['players'] = {};
     for (const [name, data] of Object.entries(room.players)) {
-      strippedPlayers[name] = {
-        ready: data.ready,
-        turn: data.turn,
-      };
+      strippedPlayers[name] = { ready: data.ready, turn: data.turn };
     }
 
     // Only reveal imposter identity in result phase
@@ -66,12 +58,14 @@ export async function GET(
       myRole,
       myWord,
       myTurn,
+      isStandby,
       imposter: imposterVisible,
       scores: room.scores,
       votes: room.votes,
       category: room.phase === 'result' ? room.category : (room.mode === 'super' ? room.category : ''),
       result: resultWithTally,
       turnOrder: room.turnOrder,
+      readyStartedAt: room.readyStartedAt ?? 0,
     };
 
     return NextResponse.json(view);

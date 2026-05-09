@@ -20,12 +20,23 @@ export async function POST(
       return NextResponse.json({ error: 'Only the host can start a new round' }, { status: 403 });
     }
 
-    // Reset round state, preserve scores
+    // Reset existing players
     for (const pName of Object.keys(room.players)) {
       room.players[pName].ready = false;
       room.players[pName].role = '';
       room.players[pName].turn = 0;
     }
+
+    // Move standby players into active players
+    for (const pName of room.standby) {
+      if (!room.players[pName]) {
+        room.players[pName] = { ready: false, role: '', turn: 0 };
+      }
+      if (room.scores[pName] === undefined) {
+        room.scores[pName] = 0;
+      }
+    }
+    room.standby = [];
 
     room.phase = 'lobby';
     room.word = '';
@@ -35,6 +46,7 @@ export async function POST(
     room.votes = {};
     room.result = null;
     room.turnOrder = {};
+    room.readyStartedAt = 0;
     room.updatedAt = Date.now();
 
     await redis.set(`room:${roomId}`, room, { ex: 86400 });

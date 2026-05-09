@@ -12,6 +12,7 @@ export interface RoomState {
       turn: number;
     };
   };
+  standby: string[]; // players waiting for next round (joined mid-round or skipped)
   word: string;
   imposterWord: string;
   category: string;
@@ -32,6 +33,7 @@ export interface RoomState {
     mode: 'imposter' | 'super';
   } | null;
   turnOrder: { [name: string]: number };
+  readyStartedAt: number; // unix ms timestamp when first player pressed ready; 0 if none
   updatedAt: number;
 }
 
@@ -51,10 +53,12 @@ export interface PlayerStateView {
   myRole: 'word' | 'imposter' | '';
   myWord: string;
   myTurn: number;
+  isStandby: boolean;
   imposter: string;
   scores: { [name: string]: number };
   votes: { [voterName: string]: string };
   category: string;
   result: (RoomState['result'] & { tally: Record<string, number> }) | null;
   turnOrder: { [name: string]: number };
+  readyStartedAt: number;
 }

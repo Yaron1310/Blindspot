@@ -35,7 +35,6 @@ export default function GamePage() {
       });
       const data = await res.json() as { ok?: boolean; error?: string };
       if (res.status === 409) {
-        // Game in progress — still allow viewing if already in room
         setJoined(true);
         return;
       }

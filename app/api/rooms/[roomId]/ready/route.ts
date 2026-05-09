@@ -25,6 +25,12 @@ export async function POST(
     }
 
     room.players[name].ready = true;
+
+    // Start the 20-second countdown on first ready
+    if (!room.readyStartedAt) {
+      room.readyStartedAt = Date.now();
+    }
+
     room.updatedAt = Date.now();
 
     await redis.set(`room:${roomId}`, room, { ex: 86400 });

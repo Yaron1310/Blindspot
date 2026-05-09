@@ -1,21 +1,25 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { PlayerStateView } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { PlayerList } from '@/components/ui/PlayerList';
 
+const COUNTDOWN_SECONDS = 20;
+
 interface LobbyScreenProps {
   state: PlayerStateView;
   playerName: string;
   onReady: () => void;
   onStart: () => void;
+  onForceStart: () => void;
   onLeave: () => void;
   loading?: boolean;
 }
 
-export function LobbyScreen({ state, playerName, onReady, onStart, onLeave, loading }: LobbyScreenProps) {
+export function LobbyScreen({ state, playerName, onReady, onStart, onForceStart, onLeave, loading }: LobbyScreenProps) {
   const router = useRouter();
   const isHost = state.host === playerName;
   const myPlayer = state.players[playerName];
@@ -23,6 +27,40 @@ export function LobbyScreen({ state, playerName, onReady, onStart, onLeave, load
   const playerNames = Object.keys(state.players);
   const allReady = playerNames.length > 0 && playerNames.every((p) => state.players[p].ready);
   const waitingCount = playerNames.filter((p) => !state.players[p].ready).length;
+  const readyCount = playerNames.length - waitingCount;
+
+  // Countdown timer
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [autoStartFired, setAutoStartFired] = useState(false);
+
+  const computeSecondsLeft = useCallback(() => {
+    if (!state.readyStartedAt) return null;
+    const elapsed = Math.floor((Date.now() - state.readyStartedAt) / 1000);
+    return Math.max(0, COUNTDOWN_SECONDS - elapsed);
+  }, [state.readyStartedAt]);
+
+  useEffect(() => {
+    if (!state.readyStartedAt) {
+      setSecondsLeft(null);
+      setAutoStartFired(false);
+      return;
+    }
+
+    const tick = () => setSecondsLeft(computeSecondsLeft());
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }, [state.readyStartedAt, computeSecondsLeft]);
+
+  // Auto force-start when countdown hits 0 (host only)
+  useEffect(() => {
+    if (isHost && secondsLeft === 0 && !autoStartFired && readyCount >= 2) {
+      setAutoStartFired(true);
+      onForceStart();
+    }
+  }, [isHost, secondsLeft, autoStartFired, readyCount, onForceStart]);
+
+  const showCountdown = secondsLeft !== null && !allReady;
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
@@ -58,6 +96,19 @@ export function LobbyScreen({ state, playerName, onReady, onStart, onLeave, load
           <h2 className="font-heading text-xl text-text">PLAYERS ({playerNames.length})</h2>
           <PlayerList players={state.players} host={state.host} myName={playerName} />
         </div>
+
+        {/* Countdown */}
+        {showCountdown && (
+          <div className={`rounded-[14px] border p-4 text-center ${secondsLeft !== null && secondsLeft <= 5 ? 'border-accent bg-red-950' : 'border-border bg-card'}`}>
+            <p className="text-muted font-body text-xs mb-1">Game starts automatically in</p>
+            <p className={`font-heading text-4xl ${secondsLeft !== null && secondsLeft <= 5 ? 'text-accent' : 'text-gold'}`}>
+              {secondsLeft}s
+            </p>
+            <p className="text-muted font-body text-xs mt-1">
+              Players who aren&apos;t ready will be skipped this round
+            </p>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="space-y-3">
