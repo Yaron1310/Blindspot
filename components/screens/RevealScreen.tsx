@@ -1,0 +1,92 @@
+'use client';
+
+import { Button } from '@/components/ui/Button';
+import { SpeakingOrder } from '@/components/ui/SpeakingOrder';
+
+interface RevealScreenProps {
+  myRole: 'word' | 'imposter' | '';
+  myWord: string;
+  myTurn: number;
+  turnOrder: Record<string, number>;
+  category: string;
+  mode: 'imposter' | 'super';
+  onContinue: () => void;
+}
+
+export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode, onContinue }: RevealScreenProps) {
+  const isImposterClassic = mode === 'imposter' && myRole === 'imposter';
+  const isSuper = mode === 'super';
+
+  let cardBg = '';
+  let cardBorder = '';
+  let cardLabel = '';
+  let cardWord = '';
+  let labelColor = '';
+  let wordColor = '';
+
+  if (isSuper) {
+    cardBg = 'bg-purple-950';
+    cardBorder = 'border-purple';
+    cardLabel = 'YOUR WORD';
+    cardWord = myWord;
+    labelColor = 'text-purple';
+    wordColor = 'text-text';
+  } else if (isImposterClassic) {
+    cardBg = 'bg-red-950';
+    cardBorder = 'border-accent';
+    cardLabel = 'YOUR ROLE';
+    cardWord = 'IMPOSTER';
+    labelColor = 'text-accent';
+    wordColor = 'text-accent';
+  } else {
+    // Crew classic
+    cardBg = 'bg-green-950';
+    cardBorder = 'border-green';
+    cardLabel = 'SECRET WORD';
+    cardWord = myWord;
+    labelColor = 'text-green';
+    wordColor = 'text-text';
+  }
+
+  return (
+    <div className="min-h-screen bg-bg flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-4">
+        {/* Role Card */}
+        <div className={`${cardBg} border-2 ${cardBorder} rounded-[14px] p-8 text-center space-y-4`}>
+          <p className={`font-heading text-sm tracking-widest ${labelColor}`}>{cardLabel}</p>
+
+          {isImposterClassic && (
+            <div className="text-6xl mb-2">🕵️</div>
+          )}
+
+          <p className={`font-heading text-5xl tracking-wide leading-tight ${wordColor}`}>
+            {cardWord}
+          </p>
+
+          {isSuper && category && (
+            <div className={`inline-block px-3 py-1 rounded-full border ${cardBorder} ${labelColor} text-xs font-body mt-2`}>
+              Category: {category}
+            </div>
+          )}
+
+          {isImposterClassic && (
+            <p className="text-muted font-body text-sm mt-2">
+              You don&apos;t know the word. Blend in!
+            </p>
+          )}
+        </div>
+
+        {/* Speaking Order */}
+        {Object.keys(turnOrder).length > 0 && (
+          <div className="bg-card border border-border rounded-[14px] p-6">
+            <SpeakingOrder turnOrder={turnOrder} myName={''} myTurn={myTurn} />
+          </div>
+        )}
+
+        <Button onClick={onContinue} className="w-full text-lg py-4" variant="secondary">
+          I&apos;ve Seen My Role →
+        </Button>
+      </div>
+    </div>
+  );
+}

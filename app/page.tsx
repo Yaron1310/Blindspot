@@ -1,0 +1,77 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function LandingPage() {
+  const router = useRouter();
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('playerName') || '';
+    if (stored) setName(stored);
+  }, []);
+
+  const handleContinue = () => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setError('Please enter your name');
+      return;
+    }
+    if (trimmed.length > 24) {
+      setError('Name must be 24 characters or fewer');
+      return;
+    }
+    sessionStorage.setItem('playerName', trimmed);
+    router.push('/rooms');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleContinue();
+  };
+
+  return (
+    <div className="min-h-screen bg-bg flex items-center justify-center p-4">
+      <div className="w-full max-w-sm space-y-8 text-center">
+        {/* Logo */}
+        <div className="space-y-3">
+          <div className="text-7xl">🕵️</div>
+          <h1 className="font-heading text-6xl text-text tracking-wider">IMPOSTER</h1>
+          <p className="text-muted font-body text-sm">A word-based social deduction game</p>
+        </div>
+
+        {/* Name input */}
+        <div className="space-y-4">
+          <div className="space-y-2 text-left">
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">
+              Your Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError('');
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter your name..."
+              maxLength={24}
+              className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+            />
+            {error && <p className="text-accent text-xs font-body">{error}</p>}
+            <p className="text-xs text-muted font-body text-right">{name.length}/24</p>
+          </div>
+
+          <button
+            onClick={handleContinue}
+            disabled={!name.trim()}
+            className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
+          >
+            Continue →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
