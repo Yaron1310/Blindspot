@@ -158,7 +158,7 @@ Result screen
 #### Room Browser Screen
 - **Create Room** card:
   - Text input: room name
-  - Mode selector: two clickable tiles — "🕵️ Imposter" and "🌀 Super-Imposter"
+  - Mode selector: two clickable tiles — "🕵️ Imposter" and "🦹 Super-Imposter"
   - "Create Room" button
 - **Open Rooms** card:
   - Live list, polls every 3 seconds
