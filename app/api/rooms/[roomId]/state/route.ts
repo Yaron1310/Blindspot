@@ -16,6 +16,9 @@ export async function GET(
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
+    // Rolling 2-hour TTL — reset on every poll so active rooms never expire
+    await redis.expire(`room:${roomId}`, 7200);
+
     const isStandby = room.standby.includes(playerName);
     const playerData = room.players[playerName];
     const myRole: 'word' | 'imposter' | '' = playerData?.role ?? '';

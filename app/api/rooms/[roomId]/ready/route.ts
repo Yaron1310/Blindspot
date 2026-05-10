@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import type { RoomState } from '@/lib/types';
+import { buildRoundState } from '@/lib/game-logic';
+
+const TTL = 7200;
 
 export async function POST(
   request: NextRequest,
@@ -26,16 +29,24 @@ export async function POST(
 
     room.players[name].ready = true;
 
-    // Start the 20-second countdown on first ready
+    // Start the force-start countdown on first ready
     if (!room.readyStartedAt) {
       room.readyStartedAt = Date.now();
     }
 
-    room.updatedAt = Date.now();
+    const playerNames = Object.keys(room.players);
+    const allReady = playerNames.length >= 2 && playerNames.every((p) => room.players[p].ready);
 
-    await redis.set(`room:${roomId}`, room, { ex: 86400 });
+    if (allReady) {
+      // Auto-start the round immediately
+      buildRoundState(room);
+    } else {
+      room.updatedAt = Date.now();
+    }
 
-    return NextResponse.json({ ok: true });
+    await redis.set(`room:${roomId}`, room, { ex: TTL });
+
+    return NextResponse.json({ ok: true, started: allReady });
   } catch (err) {
     console.error('POST /api/rooms/[roomId]/ready error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

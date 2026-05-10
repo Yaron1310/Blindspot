@@ -39,7 +39,7 @@ export async function POST(
         room.scores[trimmedName] = 0;
       }
       room.updatedAt = Date.now();
-      await redis.set(`room:${roomId}`, room, { ex: 86400 });
+      await redis.set(`room:${roomId}`, room, { ex: 7200 });
       return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: true });
     }
 
@@ -49,7 +49,7 @@ export async function POST(
     }
     room.updatedAt = Date.now();
 
-    await redis.set(`room:${roomId}`, room, { ex: 86400 });
+    await redis.set(`room:${roomId}`, room, { ex: 7200 });
 
     return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: false });
   } catch (err) {

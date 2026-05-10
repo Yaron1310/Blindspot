@@ -20,7 +20,12 @@ export async function GET() {
     await Promise.all(
       roomIds.map(async (roomId) => {
         const room = await redis.get<RoomState>(`room:${roomId}`);
-        if (room && room.phase === 'lobby') {
+        if (!room) {
+          // Key expired — remove ghost entry from the index
+          await redis.srem('rooms:index', roomId);
+          return;
+        }
+        if (room.phase === 'lobby') {
           rooms[roomId] = {
             name: room.roomName,
             host: room.host,
@@ -84,7 +89,7 @@ export async function POST(request: NextRequest) {
       updatedAt: Date.now(),
     };
 
-    await redis.set(`room:${roomId}`, state, { ex: 86400 });
+    await redis.set(`room:${roomId}`, state, { ex: 7200 });
     await redis.sadd('rooms:index', roomId);
 
     return NextResponse.json({ ok: true, roomId, roomName: state.roomName, mode });
