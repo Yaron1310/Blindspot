@@ -56,15 +56,22 @@ export async function POST(
       const accused = getAccused(tally);
       const correct = accused === room.imposter;
 
-      if (correct) {
-        // Crew wins: each crew member gets +1
+      if (room.mode === 'super') {
+        // Super mode: every player who voted for the imposter gets +1 (each for themselves)
+        for (const [voter, target] of Object.entries(room.votes)) {
+          if (target === room.imposter) {
+            room.scores[voter] = (room.scores[voter] ?? 0) + 1;
+          }
+        }
+      } else if (correct) {
+        // Classic — crew wins: each crew member gets +1
         for (const [pName, pData] of Object.entries(room.players)) {
           if (pData.role !== 'imposter') {
             room.scores[pName] = (room.scores[pName] ?? 0) + 1;
           }
         }
       } else {
-        // Imposter wins: imposter gets +2
+        // Classic — imposter wins: imposter gets +2
         room.scores[room.imposter] = (room.scores[room.imposter] ?? 0) + 2;
       }
 
@@ -81,7 +88,7 @@ export async function POST(
     }
 
     room.updatedAt = Date.now();
-    await redis.set(`room:${roomId}`, room, { ex: 86400 });
+    await redis.set(`room:${roomId}`, room, { ex: 7200 });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

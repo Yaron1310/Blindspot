@@ -1,4 +1,53 @@
 import { getWords, getSuperWords } from './words';
+import type { RoomState } from './types';
+
+/**
+ * Runs all round-start logic on a room and returns the updated room.
+ * Mutates usedWords/usedCategories in place then returns the room.
+ */
+export function buildRoundState(room: RoomState): RoomState {
+  const playerNames = Object.keys(room.players);
+
+  let word = '';
+  let imposterWord = '';
+  let category = '';
+
+  if (room.mode === 'imposter') {
+    word = pickWord(room.usedWords, room.lastWord);
+    room.usedWords = [...room.usedWords, word].slice(-10);
+    room.lastWord = word;
+  } else {
+    category = pickCategory(room.usedCategories, room.category);
+    const [crewWord, impWord] = pickTwoWordsFromCategory(category);
+    word = crewWord;
+    imposterWord = impWord;
+    room.usedCategories = [...room.usedCategories, category].slice(-10);
+  }
+
+  const imposterName = pickImposter(playerNames, room.lastImposter);
+  const turnOrder = assignTurnOrder(playerNames);
+
+  for (const pName of playerNames) {
+    room.players[pName].role = pName === imposterName ? 'imposter' : 'word';
+    room.players[pName].turn = turnOrder[pName];
+    room.players[pName].ready = false;
+  }
+
+  room.word = word;
+  room.imposterWord = imposterWord;
+  room.category = category;
+  room.imposter = imposterName;
+  room.lastImposter = imposterName;
+  room.votes = {};
+  room.result = null;
+  room.turnOrder = turnOrder;
+  room.phase = 'reveal';
+  room.round = room.round + 1;
+  room.readyStartedAt = 0;
+  room.updatedAt = Date.now();
+
+  return room;
+}
 
 /**
  * Pick a word not in usedWords and not equal to lastWord.

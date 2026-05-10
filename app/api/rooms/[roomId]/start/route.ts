@@ -15,8 +15,8 @@ export async function POST(
 ) {
   try {
     const { roomId } = params;
-    const body = await request.json() as { name: string };
-    const { name } = body;
+    const body = await request.json() as { name: string; force?: boolean };
+    const { name, force } = body;
 
     const room = await redis.get<RoomState>(`room:${roomId}`);
     if (!room) {
@@ -27,14 +27,27 @@ export async function POST(
       return NextResponse.json({ error: 'Only the host can start the round' }, { status: 403 });
     }
 
+    const allPlayerNames = Object.keys(room.players);
+
+    if (force) {
+      // Move non-ready players to standby
+      for (const pName of allPlayerNames) {
+        if (!room.players[pName].ready) {
+          room.standby.push(pName);
+          delete room.players[pName];
+        }
+      }
+    }
+
     const playerNames = Object.keys(room.players);
     const allReady = playerNames.every((p) => room.players[p].ready);
-    if (!allReady) {
+
+    if (!allReady && !force) {
       return NextResponse.json({ error: 'Not all players are ready' }, { status: 409 });
     }
 
     if (playerNames.length < 2) {
-      return NextResponse.json({ error: 'Need at least 2 players' }, { status: 409 });
+      return NextResponse.json({ error: 'Need at least 2 players to start' }, { status: 409 });
     }
 
     // Pick word / category based on mode
@@ -44,17 +57,14 @@ export async function POST(
 
     if (room.mode === 'imposter') {
       word = pickWord(room.usedWords, room.lastWord);
-      // Track used words (cap at last 10)
-      const newUsed = [...room.usedWords, word].slice(-10);
-      room.usedWords = newUsed;
+      room.usedWords = [...room.usedWords, word].slice(-10);
       room.lastWord = word;
     } else {
       category = pickCategory(room.usedCategories, room.category);
       const [crewWord, impWord] = pickTwoWordsFromCategory(category);
       word = crewWord;
       imposterWord = impWord;
-      const newUsed = [...room.usedCategories, category].slice(-10);
-      room.usedCategories = newUsed;
+      room.usedCategories = [...room.usedCategories, category].slice(-10);
     }
 
     // Pick imposter
@@ -80,9 +90,10 @@ export async function POST(
     room.turnOrder = turnOrder;
     room.phase = 'reveal';
     room.round = room.round + 1;
+    room.readyStartedAt = 0;
     room.updatedAt = Date.now();
 
-    await redis.set(`room:${roomId}`, room, { ex: 86400 });
+    await redis.set(`room:${roomId}`, room, { ex: 7200 });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

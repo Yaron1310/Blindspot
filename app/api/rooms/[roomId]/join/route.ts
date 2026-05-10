@@ -20,15 +20,27 @@ export async function POST(
       return NextResponse.json({ error: 'Room not found' }, { status: 404 });
     }
 
-    if (room.phase !== 'lobby') {
-      return NextResponse.json({ error: 'Cannot join a game in progress' }, { status: 409 });
-    }
-
     const trimmedName = name.trim();
 
-    // If already in room, return success (idempotent join)
+    // Already an active player
     if (room.players[trimmedName]) {
-      return NextResponse.json({ ok: true, host: room.host, mode: room.mode });
+      return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: false });
+    }
+
+    // Already in standby
+    if (room.standby.includes(trimmedName)) {
+      return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: true });
+    }
+
+    if (room.phase !== 'lobby') {
+      // Round in progress — put in standby
+      room.standby.push(trimmedName);
+      if (room.scores[trimmedName] === undefined) {
+        room.scores[trimmedName] = 0;
+      }
+      room.updatedAt = Date.now();
+      await redis.set(`room:${roomId}`, room, { ex: 7200 });
+      return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: true });
     }
 
     room.players[trimmedName] = { ready: false, role: '', turn: 0 };
@@ -37,9 +49,9 @@ export async function POST(
     }
     room.updatedAt = Date.now();
 
-    await redis.set(`room:${roomId}`, room, { ex: 86400 });
+    await redis.set(`room:${roomId}`, room, { ex: 7200 });
 
-    return NextResponse.json({ ok: true, host: room.host, mode: room.mode });
+    return NextResponse.json({ ok: true, host: room.host, mode: room.mode, standby: false });
   } catch (err) {
     console.error('POST /api/rooms/[roomId]/join error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
