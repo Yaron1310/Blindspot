@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LandingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPlayModal, setShowPlayModal] = useState(false);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -12,7 +13,8 @@ export default function LandingPage() {
   useEffect(() => {
     const stored = sessionStorage.getItem('playerName') || '';
     if (stored) setName(stored);
-  }, []);
+    if (searchParams.get('play') === '1') setShowPlayModal(true);
+  }, [searchParams]);
 
   const handlePlay = () => {
     const trimmed = name.trim();

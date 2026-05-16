@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RoomList } from '@/components/ui/RoomList';
@@ -13,6 +14,7 @@ interface RoomInfo {
   phase: string;
   playerCount: number;
   mode: 'imposter' | 'super';
+  ownerUsername?: string;
 }
 
 export default function RoomsPage() {
@@ -43,15 +45,18 @@ export default function RoomsPage() {
         phase: string;
         playerCount: number;
         mode: 'imposter' | 'super';
+        ownerUsername?: string;
       }>;
-      const roomList: RoomInfo[] = Object.entries(data).map(([id, room]) => ({
-        id,
-        name: room.name,
-        host: room.host,
-        phase: room.phase,
-        playerCount: room.playerCount,
-        mode: room.mode,
-      }));
+      const roomList: RoomInfo[] = Object.entries(data)
+        .filter(([, room]) => !room.ownerUsername)
+        .map(([id, room]) => ({
+          id,
+          name: room.name,
+          host: room.host,
+          phase: room.phase,
+          playerCount: room.playerCount,
+          mode: room.mode,
+        }));
       setRooms(roomList);
     } catch {
       // silently ignore
@@ -124,17 +129,18 @@ export default function RoomsPage() {
     <div className="min-h-screen bg-bg p-4">
       <div className="max-w-md mx-auto space-y-4 pt-8">
         {/* Header */}
+        <Link href="/" className="text-muted hover:text-text font-body text-sm transition-colors block">← Home</Link>
         <div className="flex items-center justify-between">
           <h1 className="font-heading text-3xl text-text">GAME ROOMS</h1>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted font-body">Playing as</span>
             <span className="text-sm text-text font-body font-medium">{playerName}</span>
-            <button
-              onClick={() => router.push('/')}
+            <Link
+              href="/?play=1"
               className="text-xs text-muted hover:text-text font-body transition-colors ml-1"
             >
               (change)
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -173,10 +179,7 @@ export default function RoomsPage() {
 
         {/* Open Rooms */}
         <Card className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl text-text">OPEN ROOMS</h2>
-            <span className="text-xs text-muted font-body">Updates every 3s</span>
-          </div>
+          <h2 className="font-heading text-xl text-text">OPEN ROOMS</h2>
           <RoomList
             rooms={rooms}
             onJoin={(id) => !joining && handleJoin(id)}
