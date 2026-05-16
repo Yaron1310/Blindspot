@@ -15,6 +15,8 @@ export async function GET() {
       phase: string;
       playerCount: number;
       mode: string;
+      ownerUsername?: string;
+      gamezoneId?: string;
     }> = {};
 
     await Promise.all(
@@ -32,6 +34,8 @@ export async function GET() {
             phase: room.phase,
             playerCount: Object.keys(room.players).length,
             mode: room.mode,
+            ...(room.ownerUsername ? { ownerUsername: room.ownerUsername } : {}),
+            ...(room.gamezoneId ? { gamezoneId: room.gamezoneId } : {}),
           };
         }
       })
