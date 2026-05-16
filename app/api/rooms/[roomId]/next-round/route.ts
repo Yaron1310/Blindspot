@@ -40,9 +40,9 @@ export async function POST(
 
     room.phase = 'lobby';
     room.word = '';
-    room.imposterWord = '';
+    room.spyWord = '';
     room.category = '';
-    room.imposter = '';
+    room.spy = '';
     room.votes = {};
     room.result = null;
     room.turnOrder = {};

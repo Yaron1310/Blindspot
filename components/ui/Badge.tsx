@@ -1,11 +1,11 @@
 interface BadgeProps {
-  variant: 'imposter' | 'super' | 'ready' | 'waiting' | 'host' | 'you';
+  variant: 'classic' | 'super' | 'ready' | 'waiting' | 'host' | 'you';
   children: React.ReactNode;
 }
 
 export function Badge({ variant, children }: BadgeProps) {
   const styles = {
-    imposter: 'bg-red-900 text-accent border border-accent',
+    classic: 'bg-red-900 text-accent border border-accent',
     super: 'bg-purple-900 text-purple border border-purple',
     ready: 'bg-green-900 text-green border border-green',
     waiting: 'bg-surface text-muted border border-border',

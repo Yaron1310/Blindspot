@@ -2,22 +2,22 @@ export interface RoomState {
   roomId: string;
   roomName: string;
   host: string;
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
   phase: 'lobby' | 'reveal' | 'result';
   round: number;
   players: {
     [name: string]: {
       ready: boolean;
-      role: 'word' | 'imposter' | '';
+      role: 'word' | 'spy' | '';
       turn: number;
     };
   };
   standby: string[];
   word: string;
-  imposterWord: string;
+  spyWord: string;
   category: string;
-  imposter: string;
-  lastImposter: string;
+  spy: string;
+  lastSpy: string;
   lastWord: string;
   usedWords: string[];
   usedCategories: string[];
@@ -26,11 +26,11 @@ export interface RoomState {
   result: {
     accused: string;
     correct: boolean;
-    imposter: string;
+    spy: string;
     word: string;
-    imposterWord: string;
+    spyWord: string;
     category: string;
-    mode: 'imposter' | 'super';
+    mode: 'classic' | 'super';
   } | null;
   turnOrder: { [name: string]: number };
   readyStartedAt: number;
@@ -43,7 +43,7 @@ export interface PlayerStateView {
   roomId: string;
   roomName: string;
   host: string;
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
   phase: 'lobby' | 'reveal' | 'result';
   round: number;
   players: {
@@ -52,11 +52,11 @@ export interface PlayerStateView {
       turn: number;
     };
   };
-  myRole: 'word' | 'imposter' | '';
+  myRole: 'word' | 'spy' | '';
   myWord: string;
   myTurn: number;
   isStandby: boolean;
-  imposter: string;
+  spy: string;
   scores: { [name: string]: number };
   votes: { [voterName: string]: string };
   category: string;

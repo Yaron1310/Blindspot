@@ -50,7 +50,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { roomName: string; hostName: string; mode: 'imposter' | 'super'; ownerUsername?: string; gamezoneId?: string };
+    const body = await request.json() as { roomName: string; hostName: string; mode: 'classic' | 'super'; ownerUsername?: string; gamezoneId?: string };
     const { roomName, hostName, mode, ownerUsername, gamezoneId } = body;
 
     if (!roomName || roomName.trim().length === 0) {
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
     if (!hostName || hostName.trim().length === 0 || hostName.length > 24) {
       return NextResponse.json({ error: 'Host name must be 1-24 characters' }, { status: 400 });
     }
-    if (mode !== 'imposter' && mode !== 'super') {
-      return NextResponse.json({ error: 'Mode must be imposter or super' }, { status: 400 });
+    if (mode !== 'classic' && mode !== 'super') {
+      return NextResponse.json({ error: 'Mode must be classic or super' }, { status: 400 });
     }
 
     const normalizedName = roomName.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
         [hostName.trim()]: { ready: false, role: '', turn: 0 },
       },
       word: '',
-      imposterWord: '',
+      spyWord: '',
       category: '',
-      imposter: '',
-      lastImposter: '',
+      spy: '',
+      lastSpy: '',
       lastWord: '',
       usedWords: [],
       usedCategories: [],
