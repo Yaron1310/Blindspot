@@ -74,7 +74,7 @@ export async function POST(
     }
 
     room.updatedAt = Date.now();
-    await redis.set(`room:${roomId}`, room, { ex: 7200 });
+    await redis.set(`room:${roomId}`, room, { ex: 3600 });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

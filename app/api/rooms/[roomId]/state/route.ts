@@ -17,7 +17,7 @@ export async function GET(
     }
 
     // Rolling 2-hour TTL — reset on every poll so active rooms never expire
-    await redis.expire(`room:${roomId}`, 7200);
+    await redis.expire(`room:${roomId}`, 3600);
 
     const isStandby = room.standby.includes(playerName);
     const playerData = room.players[playerName];
