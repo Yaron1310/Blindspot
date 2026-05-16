@@ -5,7 +5,7 @@ import { Spinner } from '@/components/ui/Spinner';
 interface VoteScreenProps {
   players: Record<string, { ready: boolean; turn: number }>;
   myName: string;
-  myRole: 'word' | 'agent' | '';
+  myRole: 'word' | 'spy' | '';
   mode: 'classic' | 'super';
   hasVoted: boolean;
   votes: Record<string, string>;
@@ -15,15 +15,15 @@ interface VoteScreenProps {
 
 export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onVote, loading }: VoteScreenProps) {
   const playerNames = Object.keys(players);
-  const isClassicAgent = mode === 'classic' && myRole === 'agent';
+  const isClassicSpy = mode === 'classic' && myRole === 'spy';
 
-  // Classic agent waiting screen
-  if (isClassicAgent) {
+  // Classic spy waiting screen
+  if (isClassicSpy) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center space-y-6">
           <div className="text-6xl">🕵️</div>
-          <h1 className="font-heading text-4xl text-accent">YOU ARE THE AGENT</h1>
+          <h1 className="font-heading text-4xl text-accent">YOU ARE THE SPY</h1>
           <p className="text-muted font-body">Waiting for all players to vote...</p>
           <div className="flex justify-center">
             <Spinner />
@@ -54,7 +54,7 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
     );
   }
 
-  const title = mode === 'super' ? 'Who has the different word?' : 'Who is the agent?';
+  const title = mode === 'super' ? 'Who has the different word?' : 'Who is the spy?';
 
   // Super mode: "Me" first (gold), then everyone else
   // Classic mode: everyone except self

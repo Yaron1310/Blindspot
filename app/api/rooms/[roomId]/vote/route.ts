@@ -33,9 +33,9 @@ export async function POST(
       return NextResponse.json({ error: 'Already voted' }, { status: 409 });
     }
 
-    // Classic mode: agent cannot vote (they don't know the word)
-    if (room.mode === 'classic' && room.players[voter].role === 'agent') {
-      return NextResponse.json({ error: 'Agent cannot vote in classic mode' }, { status: 403 });
+    // Classic mode: spy cannot vote (they don't know the word)
+    if (room.mode === 'classic' && room.players[voter].role === 'spy') {
+      return NextResponse.json({ error: 'Spy cannot vote in classic mode' }, { status: 403 });
     }
 
     // Classic mode: cannot vote for self
@@ -52,11 +52,11 @@ export async function POST(
     if (voteCount >= needed) {
       const tally = tallyVotes(room.votes);
       const accused = getAccused(tally);
-      const correct = accused === room.agent;
+      const correct = accused === room.spy;
 
-      // Each player who voted for the agent gets +1 point
+      // Each player who correctly voted for the spy gets +1 point
       for (const [v, t] of Object.entries(room.votes)) {
-        if (t === room.agent) {
+        if (t === room.spy) {
           room.scores[v] = (room.scores[v] ?? 0) + 1;
         }
       }
@@ -64,9 +64,9 @@ export async function POST(
       room.result = {
         accused,
         correct,
-        agent: room.agent,
+        spy: room.spy,
         word: room.word,
-        agentWord: room.agentWord,
+        spyWord: room.spyWord,
         category: room.category,
         mode: room.mode,
       };

@@ -26,16 +26,16 @@ export function ResultScreen({ result, scores, votes, isHost, playerName, onNewR
   }
 
   const myVote = votes[playerName];
-  const iGotPoint = myVote === result.agent;
+  const iGotPoint = myVote === result.spy;
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-4">
 
-        {/* Agent reveal */}
+        {/* Spy reveal */}
         <div className="bg-card border-2 border-border rounded-[14px] p-6 text-center space-y-2">
-          <p className="text-xs text-muted font-body uppercase tracking-widest">The agent was</p>
-          <p className="font-heading text-4xl text-accent">{result.agent}</p>
+          <p className="text-xs text-muted font-body uppercase tracking-widest">The spy was</p>
+          <p className="font-heading text-4xl text-accent">{result.spy}</p>
 
           {result.mode === 'super' ? (
             <div className="mt-3 space-y-1">
@@ -44,7 +44,7 @@ export function ResultScreen({ result, scores, votes, isHost, playerName, onNewR
                 Crew word: <span className="text-green font-bold">{result.word}</span>
               </p>
               <p className="text-xs text-muted font-body">
-                Agent word: <span className="text-accent font-bold">{result.agentWord}</span>
+                Spy word: <span className="text-accent font-bold">{result.spyWord}</span>
               </p>
             </div>
           ) : (

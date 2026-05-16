@@ -8,16 +8,16 @@ export interface RoomState {
   players: {
     [name: string]: {
       ready: boolean;
-      role: 'word' | 'agent' | '';
+      role: 'word' | 'spy' | '';
       turn: number;
     };
   };
   standby: string[];
   word: string;
-  agentWord: string;
+  spyWord: string;
   category: string;
-  agent: string;
-  lastAgent: string;
+  spy: string;
+  lastSpy: string;
   lastWord: string;
   usedWords: string[];
   usedCategories: string[];
@@ -26,9 +26,9 @@ export interface RoomState {
   result: {
     accused: string;
     correct: boolean;
-    agent: string;
+    spy: string;
     word: string;
-    agentWord: string;
+    spyWord: string;
     category: string;
     mode: 'classic' | 'super';
   } | null;
@@ -52,11 +52,11 @@ export interface PlayerStateView {
       turn: number;
     };
   };
-  myRole: 'word' | 'agent' | '';
+  myRole: 'word' | 'spy' | '';
   myWord: string;
   myTurn: number;
   isStandby: boolean;
-  agent: string;
+  spy: string;
   scores: { [name: string]: number };
   votes: { [voterName: string]: string };
   category: string;

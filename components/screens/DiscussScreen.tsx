@@ -14,7 +14,7 @@ interface DiscussScreenProps {
 export function DiscussScreen({ mode, turnOrder, myName, myTurn, onStartVoting }: DiscussScreenProps) {
   const hint =
     mode === 'classic'
-      ? "Players take turns giving one-sentence clues about the secret word. The agent must blend in!"
+      ? "Players take turns giving one-sentence clues about the secret word. The spy must blend in!"
       : "Players take turns describing their word. Someone has a different word from the same category!";
 
   return (

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { SpeakingOrder } from '@/components/ui/SpeakingOrder';
 
 interface RevealScreenProps {
-  myRole: 'word' | 'agent' | '';
+  myRole: 'word' | 'spy' | '';
   myWord: string;
   myTurn: number;
   turnOrder: Record<string, number>;
@@ -14,7 +14,7 @@ interface RevealScreenProps {
 }
 
 export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode, onContinue }: RevealScreenProps) {
-  const isClassicAgent = mode === 'classic' && myRole === 'agent';
+  const isClassicSpy = mode === 'classic' && myRole === 'spy';
   const isSuper = mode === 'super';
 
   let cardBg = '';
@@ -31,11 +31,11 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
     cardWord = myWord;
     labelColor = 'text-purple';
     wordColor = 'text-text';
-  } else if (isClassicAgent) {
+  } else if (isClassicSpy) {
     cardBg = 'bg-red-950';
     cardBorder = 'border-accent';
     cardLabel = 'YOUR ROLE';
-    cardWord = 'AGENT';
+    cardWord = 'SPY';
     labelColor = 'text-accent';
     wordColor = 'text-accent';
   } else {
@@ -54,7 +54,7 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
         <div className={`${cardBg} border-2 ${cardBorder} rounded-[14px] p-8 text-center space-y-4`}>
           <p className={`font-heading text-sm tracking-widest ${labelColor}`}>{cardLabel}</p>
 
-          {isClassicAgent && (
+          {isClassicSpy && (
             <div className="text-6xl mb-2">🕵️</div>
           )}
 
@@ -68,7 +68,7 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
             </div>
           )}
 
-          {isClassicAgent && (
+          {isClassicSpy && (
             <p className="text-muted font-body text-sm mt-2">
               You don&apos;t know the word. Blend in!
             </p>

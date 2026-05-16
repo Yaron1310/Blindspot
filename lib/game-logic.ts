@@ -5,7 +5,7 @@ export function buildRoundState(room: RoomState, gamezoneCategories?: Record<str
   const playerNames = Object.keys(room.players);
 
   let word = '';
-  let agentWord = '';
+  let spyWord = '';
   let category = '';
 
   if (room.mode === 'classic') {
@@ -16,30 +16,30 @@ export function buildRoundState(room: RoomState, gamezoneCategories?: Record<str
     category = pickCategory(room.usedCategories, room.category, gamezoneCategories);
     const [crewWord, agWord] = pickTwoWordsFromCategory(category, gamezoneCategories);
     word = crewWord;
-    agentWord = agWord;
+    spyWord = agWord;
     room.usedCategories = [...room.usedCategories, category].slice(-10);
   } else {
     category = pickCategory(room.usedCategories, room.category);
     const [crewWord, agWord] = pickTwoWordsFromCategory(category);
     word = crewWord;
-    agentWord = agWord;
+    spyWord = agWord;
     room.usedCategories = [...room.usedCategories, category].slice(-10);
   }
 
-  const agentName = pickAgent(playerNames, room.lastAgent);
+  const spyName = pickSpy(playerNames, room.lastSpy);
   const turnOrder = assignTurnOrder(playerNames);
 
   for (const pName of playerNames) {
-    room.players[pName].role = pName === agentName ? 'agent' : 'word';
+    room.players[pName].role = pName === spyName ? 'spy' : 'word';
     room.players[pName].turn = turnOrder[pName];
     room.players[pName].ready = false;
   }
 
   room.word = word;
-  room.agentWord = agentWord;
+  room.spyWord = spyWord;
   room.category = category;
-  room.agent = agentName;
-  room.lastAgent = agentName;
+  room.spy = spyName;
+  room.lastSpy = spyName;
   room.votes = {};
   room.result = null;
   room.turnOrder = turnOrder;
@@ -84,8 +84,8 @@ export function pickTwoWordsFromCategory(category: string, customWords?: Record<
   return [words[idx1], words[idx2]];
 }
 
-export function pickAgent(playerNames: string[], lastAgent: string): string {
-  let available = playerNames.filter((p) => p !== lastAgent);
+export function pickSpy(playerNames: string[], lastSpy: string): string {
+  let available = playerNames.filter((p) => p !== lastSpy);
   if (available.length === 0) available = playerNames;
   return available[Math.floor(Math.random() * available.length)];
 }
