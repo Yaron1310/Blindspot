@@ -16,12 +16,48 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
 
+  const [usernameError, setUsernameError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleUsernameBlur = async () => {
+    setUsernameError('');
+    if (!username) return;
+    try {
+      const res = await fetch('/api/auth/check-username', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+      const data = await res.json();
+      if (!res.ok) setUsernameError(data.error ?? 'Username unavailable');
+    } catch {
+      // ignore network errors on blur
+    }
+  };
+
+  const handleEmailBlur = async () => {
+    setEmailError('');
+    if (!email || !email.includes('@')) return;
+    try {
+      const res = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) setEmailError(data.error ?? 'Email unavailable');
+    } catch {
+      // ignore network errors on blur
+    }
+  };
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (usernameError || emailError) return;
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -93,14 +129,18 @@ export default function SignupPage() {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                onChange={(e) => { setUsername(e.target.value.toLowerCase()); setUsernameError(''); }}
+                onBlur={handleUsernameBlur}
                 placeholder="your-name"
                 required
                 minLength={3}
                 maxLength={20}
-                className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                className={`w-full bg-card border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none transition-colors ${usernameError ? 'border-accent focus:border-accent' : 'border-border focus:border-accent'}`}
               />
-              <p className="text-xs text-muted font-body">3–20 chars, letters, numbers, hyphens</p>
+              {usernameError
+                ? <p className="text-accent text-xs font-body">{usernameError}</p>
+                : <p className="text-xs text-muted font-body">3–20 chars, letters, numbers, hyphens</p>
+              }
             </div>
 
             <div className="space-y-2">
@@ -108,11 +148,13 @@ export default function SignupPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+                onBlur={handleEmailBlur}
                 placeholder="you@example.com"
                 required
-                className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                className={`w-full bg-card border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none transition-colors ${emailError ? 'border-accent focus:border-accent' : 'border-border focus:border-accent'}`}
               />
+              {emailError && <p className="text-accent text-xs font-body">{emailError}</p>}
             </div>
 
             <div className="space-y-2">
