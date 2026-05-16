@@ -4,8 +4,9 @@ import type { RoomState } from './types';
 /**
  * Runs all round-start logic on a room and returns the updated room.
  * Mutates usedWords/usedCategories in place then returns the room.
+ * Pass gamezoneCategories when the room has a gamezoneId to use custom words.
  */
-export function buildRoundState(room: RoomState): RoomState {
+export function buildRoundState(room: RoomState, gamezoneCategories?: Record<string, string[]>): RoomState {
   const playerNames = Object.keys(room.players);
 
   let word = '';
@@ -16,6 +17,12 @@ export function buildRoundState(room: RoomState): RoomState {
     word = pickWord(room.usedWords, room.lastWord);
     room.usedWords = [...room.usedWords, word].slice(-10);
     room.lastWord = word;
+  } else if (gamezoneCategories && Object.keys(gamezoneCategories).length > 0) {
+    category = pickCategory(room.usedCategories, room.category, gamezoneCategories);
+    const [crewWord, impWord] = pickTwoWordsFromCategory(category, gamezoneCategories);
+    word = crewWord;
+    imposterWord = impWord;
+    room.usedCategories = [...room.usedCategories, category].slice(-10);
   } else {
     category = pickCategory(room.usedCategories, room.category);
     const [crewWord, impWord] = pickTwoWordsFromCategory(category);
@@ -66,16 +73,12 @@ export function pickWord(usedWords: string[], lastWord: string): string {
 
 /**
  * Pick a category not in usedCategories.
- * If all categories used, reset and pick from full list.
+ * Pass customWords to draw from a gamezone instead of the built-in super_words.json.
  */
-export function pickCategory(usedCategories: string[], lastCategory: string): string {
-  const superWords = getSuperWords();
-  const allCategories = Object.keys(superWords).filter(
-    (cat) => superWords[cat].length >= 2
-  );
-  let available = allCategories.filter(
-    (c) => !usedCategories.includes(c) && c !== lastCategory
-  );
+export function pickCategory(usedCategories: string[], lastCategory: string, customWords?: Record<string, string[]>): string {
+  const wordMap = customWords ?? getSuperWords();
+  const allCategories = Object.keys(wordMap).filter((cat) => wordMap[cat].length >= 2);
+  let available = allCategories.filter((c) => !usedCategories.includes(c) && c !== lastCategory);
   if (available.length === 0) {
     available = allCategories.filter((c) => c !== lastCategory);
     if (available.length === 0) available = allCategories;
@@ -85,11 +88,11 @@ export function pickCategory(usedCategories: string[], lastCategory: string): st
 
 /**
  * Pick two distinct words from the given category.
- * Returns [crewWord, imposterWord].
+ * Pass customWords to draw from a gamezone instead of the built-in super_words.json.
  */
-export function pickTwoWordsFromCategory(category: string): [string, string] {
-  const superWords = getSuperWords();
-  const words = superWords[category];
+export function pickTwoWordsFromCategory(category: string, customWords?: Record<string, string[]>): [string, string] {
+  const wordMap = customWords ?? getSuperWords();
+  const words = wordMap[category];
   if (!words || words.length < 2) {
     throw new Error(`Category "${category}" does not have at least 2 words`);
   }

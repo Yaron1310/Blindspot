@@ -2,10 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ModeSelector } from '@/components/ui/ModeSelector';
 import { RoomList } from '@/components/ui/RoomList';
+
+function AppHeader() {
+  return (
+    <Link href="/" className="flex items-center gap-2 text-text hover:opacity-80 transition-opacity">
+      <span className="text-xl">🕵️</span>
+      <span className="font-heading text-xl tracking-wider">BLINDSPOT</span>
+    </Link>
+  );
+}
 
 interface RoomInfo {
   id: string;
@@ -14,6 +23,7 @@ interface RoomInfo {
   phase: string;
   playerCount: number;
   mode: 'imposter' | 'super';
+  ownerUsername?: string;
 }
 
 export default function RoomsPage() {
@@ -21,7 +31,6 @@ export default function RoomsPage() {
   const [playerName, setPlayerName] = useState('');
   const [rooms, setRooms] = useState<RoomInfo[]>([]);
   const [roomName, setRoomName] = useState('');
-  const [mode, setMode] = useState<'imposter' | 'super'>('imposter');
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -45,15 +54,18 @@ export default function RoomsPage() {
         phase: string;
         playerCount: number;
         mode: 'imposter' | 'super';
+        ownerUsername?: string;
       }>;
-      const roomList: RoomInfo[] = Object.entries(data).map(([id, room]) => ({
-        id,
-        name: room.name,
-        host: room.host,
-        phase: room.phase,
-        playerCount: room.playerCount,
-        mode: room.mode,
-      }));
+      const roomList: RoomInfo[] = Object.entries(data)
+        .filter(([, room]) => !room.ownerUsername)
+        .map(([id, room]) => ({
+          id,
+          name: room.name,
+          host: room.host,
+          phase: room.phase,
+          playerCount: room.playerCount,
+          mode: room.mode,
+        }));
       setRooms(roomList);
     } catch {
       // silently ignore
@@ -81,7 +93,7 @@ export default function RoomsPage() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: roomName.trim(), hostName: playerName, mode }),
+        body: JSON.stringify({ roomName: roomName.trim(), hostName: playerName, mode: 'super' }),
       });
       const data = await res.json() as { ok?: boolean; roomId?: string; error?: string };
       if (!res.ok || !data.roomId) {
@@ -125,18 +137,18 @@ export default function RoomsPage() {
   return (
     <div className="min-h-screen bg-bg p-4">
       <div className="max-w-md mx-auto space-y-4 pt-8">
-        {/* Header */}
+        <AppHeader />
         <div className="flex items-center justify-between">
           <h1 className="font-heading text-3xl text-text">GAME ROOMS</h1>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted font-body">Playing as</span>
             <span className="text-sm text-text font-body font-medium">{playerName}</span>
-            <button
-              onClick={() => router.push('/')}
+            <Link
+              href="/?play=1"
               className="text-xs text-muted hover:text-text font-body transition-colors ml-1"
             >
               (change)
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -163,12 +175,6 @@ export default function RoomsPage() {
               className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
             />
           </div>
-          <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">
-              Game Mode
-            </label>
-            <ModeSelector value={mode} onChange={setMode} />
-          </div>
           <Button
             onClick={handleCreate}
             disabled={creating || !roomName.trim()}
@@ -181,10 +187,7 @@ export default function RoomsPage() {
 
         {/* Open Rooms */}
         <Card className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl text-text">OPEN ROOMS</h2>
-            <span className="text-xs text-muted font-body">Updates every 3s</span>
-          </div>
+          <h2 className="font-heading text-xl text-text">OPEN ROOMS</h2>
           <RoomList
             rooms={rooms}
             onJoin={(id) => !joining && handleJoin(id)}
