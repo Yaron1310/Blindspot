@@ -101,8 +101,8 @@ export async function POST(request: NextRequest) {
       ...(gamezoneId ? { gamezoneId } : {}),
     };
 
-    await redis.set(`room:${roomId}`, state, { ex: 7200 });
-    await redis.set(`room:name:${normalizedName}`, roomId, { ex: 7200 });
+    await redis.set(`room:${roomId}`, state, { ex: 3600 });
+    await redis.set(`room:name:${normalizedName}`, roomId, { ex: 3600 });
     await redis.sadd('rooms:index', roomId);
 
     return NextResponse.json({ ok: true, roomId, roomName: state.roomName, mode });

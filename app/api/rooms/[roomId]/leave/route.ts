@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import type { RoomState } from '@/lib/types';
 
-const TTL = 7200;
+const TTL = 3600;
 
 export async function POST(
   request: NextRequest,
@@ -28,10 +28,9 @@ export async function POST(
 
     const remainingPlayers = Object.keys(room.players);
 
-    // No players left — delete the room entirely
+    // No players left — let the room expire naturally after 1 hour
     if (remainingPlayers.length === 0) {
-      await redis.del(`room:${roomId}`);
-      await redis.srem('rooms:index', roomId);
+      await redis.expire(`room:${roomId}`, TTL);
       return NextResponse.json({ ok: true });
     }
 

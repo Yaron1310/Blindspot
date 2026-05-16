@@ -3,7 +3,7 @@ import { redis } from '@/lib/redis';
 import type { RoomState, Gamezone } from '@/lib/types';
 import { buildRoundState } from '@/lib/game-logic';
 
-const TTL = 7200;
+const TTL = 3600;
 
 async function loadGamezoneCategories(room: RoomState): Promise<Record<string, string[]> | undefined> {
   if (!room.ownerUsername || !room.gamezoneId) return undefined;
