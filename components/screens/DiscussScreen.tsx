@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { SpeakingOrder } from '@/components/ui/SpeakingOrder';
 
 interface DiscussScreenProps {
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
   turnOrder: Record<string, number>;
   myName: string;
   myTurn: number;
@@ -13,8 +13,8 @@ interface DiscussScreenProps {
 
 export function DiscussScreen({ mode, turnOrder, myName, myTurn, onStartVoting }: DiscussScreenProps) {
   const hint =
-    mode === 'imposter'
-      ? "Players take turns giving one-sentence clues about the secret word. The Imposter must blend in!"
+    mode === 'classic'
+      ? "Players take turns giving one-sentence clues about the secret word. The agent must blend in!"
       : "Players take turns describing their word. Someone has a different word from the same category!";
 
   return (

@@ -213,6 +213,7 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
       <ResultScreen
         result={state.result}
         scores={state.scores}
+        votes={state.votes}
         isHost={isHost}
         playerName={playerName}
         onNewRound={handleNewRound}

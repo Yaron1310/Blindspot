@@ -29,18 +29,17 @@ export async function POST(
       return NextResponse.json({ error: 'Voter is not in this room' }, { status: 403 });
     }
 
-    // Reject duplicate votes
     if (room.votes[voter] !== undefined) {
       return NextResponse.json({ error: 'Already voted' }, { status: 409 });
     }
 
-    // Classic mode: imposter cannot vote
-    if (room.mode === 'imposter' && room.players[voter].role === 'imposter') {
-      return NextResponse.json({ error: 'Imposter cannot vote in classic mode' }, { status: 403 });
+    // Classic mode: agent cannot vote (they don't know the word)
+    if (room.mode === 'classic' && room.players[voter].role === 'agent') {
+      return NextResponse.json({ error: 'Agent cannot vote in classic mode' }, { status: 403 });
     }
 
     // Classic mode: cannot vote for self
-    if (room.mode === 'imposter' && voter === target) {
+    if (room.mode === 'classic' && voter === target) {
       return NextResponse.json({ error: 'Cannot vote for yourself' }, { status: 400 });
     }
 
@@ -51,36 +50,23 @@ export async function POST(
     const voteCount = Object.keys(room.votes).length;
 
     if (voteCount >= needed) {
-      // All required votes received — compute result
       const tally = tallyVotes(room.votes);
       const accused = getAccused(tally);
-      const correct = accused === room.imposter;
+      const correct = accused === room.agent;
 
-      if (room.mode === 'super') {
-        // Super mode: every player who voted for the imposter gets +1 (each for themselves)
-        for (const [voter, target] of Object.entries(room.votes)) {
-          if (target === room.imposter) {
-            room.scores[voter] = (room.scores[voter] ?? 0) + 1;
-          }
+      // Each player who voted for the agent gets +1 point
+      for (const [v, t] of Object.entries(room.votes)) {
+        if (t === room.agent) {
+          room.scores[v] = (room.scores[v] ?? 0) + 1;
         }
-      } else if (correct) {
-        // Classic — crew wins: each crew member gets +1
-        for (const [pName, pData] of Object.entries(room.players)) {
-          if (pData.role !== 'imposter') {
-            room.scores[pName] = (room.scores[pName] ?? 0) + 1;
-          }
-        }
-      } else {
-        // Classic — imposter wins: imposter gets +2
-        room.scores[room.imposter] = (room.scores[room.imposter] ?? 0) + 2;
       }
 
       room.result = {
         accused,
         correct,
-        imposter: room.imposter,
+        agent: room.agent,
         word: room.word,
-        imposterWord: room.imposterWord,
+        agentWord: room.agentWord,
         category: room.category,
         mode: room.mode,
       };

@@ -22,7 +22,7 @@ interface RoomInfo {
   host: string;
   phase: string;
   playerCount: number;
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
   ownerUsername?: string;
 }
 
@@ -53,7 +53,7 @@ export default function RoomsPage() {
         host: string;
         phase: string;
         playerCount: number;
-        mode: 'imposter' | 'super';
+        mode: 'classic' | 'super';
         ownerUsername?: string;
       }>;
       const roomList: RoomInfo[] = Object.entries(data)

@@ -6,7 +6,7 @@ interface RoomInfo {
   host: string;
   phase: string;
   playerCount: number;
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
 }
 
 interface RoomListProps {

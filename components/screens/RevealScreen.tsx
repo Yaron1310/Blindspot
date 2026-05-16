@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/Button';
 import { SpeakingOrder } from '@/components/ui/SpeakingOrder';
 
 interface RevealScreenProps {
-  myRole: 'word' | 'imposter' | '';
+  myRole: 'word' | 'agent' | '';
   myWord: string;
   myTurn: number;
   turnOrder: Record<string, number>;
   category: string;
-  mode: 'imposter' | 'super';
+  mode: 'classic' | 'super';
   onContinue: () => void;
 }
 
 export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode, onContinue }: RevealScreenProps) {
-  const isImposterClassic = mode === 'imposter' && myRole === 'imposter';
+  const isClassicAgent = mode === 'classic' && myRole === 'agent';
   const isSuper = mode === 'super';
 
   let cardBg = '';
@@ -31,15 +31,14 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
     cardWord = myWord;
     labelColor = 'text-purple';
     wordColor = 'text-text';
-  } else if (isImposterClassic) {
+  } else if (isClassicAgent) {
     cardBg = 'bg-red-950';
     cardBorder = 'border-accent';
     cardLabel = 'YOUR ROLE';
-    cardWord = 'IMPOSTER';
+    cardWord = 'AGENT';
     labelColor = 'text-accent';
     wordColor = 'text-accent';
   } else {
-    // Crew classic
     cardBg = 'bg-green-950';
     cardBorder = 'border-green';
     cardLabel = 'SECRET WORD';
@@ -55,7 +54,7 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
         <div className={`${cardBg} border-2 ${cardBorder} rounded-[14px] p-8 text-center space-y-4`}>
           <p className={`font-heading text-sm tracking-widest ${labelColor}`}>{cardLabel}</p>
 
-          {isImposterClassic && (
+          {isClassicAgent && (
             <div className="text-6xl mb-2">🕵️</div>
           )}
 
@@ -69,7 +68,7 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
             </div>
           )}
 
-          {isImposterClassic && (
+          {isClassicAgent && (
             <p className="text-muted font-body text-sm mt-2">
               You don&apos;t know the word. Blend in!
             </p>

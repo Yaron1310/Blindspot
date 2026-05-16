@@ -21,14 +21,14 @@ export async function GET(
 
     const isStandby = room.standby.includes(playerName);
     const playerData = room.players[playerName];
-    const myRole: 'word' | 'imposter' | '' = playerData?.role ?? '';
+    const myRole: 'word' | 'agent' | '' = playerData?.role ?? '';
     const myTurn = playerData?.turn ?? 0;
 
     // Determine what word to show this player
     let myWord = '';
     if (room.phase === 'reveal' || room.phase === 'result') {
-      if (myRole === 'imposter') {
-        myWord = room.mode === 'super' ? room.imposterWord : '';
+      if (myRole === 'agent') {
+        myWord = room.mode === 'super' ? room.agentWord : '';
       } else if (myRole === 'word') {
         myWord = room.word;
       }
@@ -40,8 +40,8 @@ export async function GET(
       strippedPlayers[name] = { ready: data.ready, turn: data.turn };
     }
 
-    // Only reveal imposter identity in result phase
-    const imposterVisible = room.phase === 'result' ? room.imposter : '';
+    // Only reveal agent identity in result phase
+    const agentVisible = room.phase === 'result' ? room.agent : '';
 
     // Compute tally for result phase
     let resultWithTally: PlayerStateView['result'] = null;
@@ -62,7 +62,7 @@ export async function GET(
       myWord,
       myTurn,
       isStandby,
-      imposter: imposterVisible,
+      agent: agentVisible,
       scores: room.scores,
       votes: room.votes,
       category: room.phase === 'result' ? room.category : (room.mode === 'super' ? room.category : ''),

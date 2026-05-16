@@ -8,6 +8,7 @@ import { Scoreboard } from '@/components/ui/Scoreboard';
 interface ResultScreenProps {
   result: (RoomState['result'] & { tally: Record<string, number> }) | null;
   scores: Record<string, number>;
+  votes: Record<string, string>;
   isHost: boolean;
   playerName: string;
   onNewRound: () => void;
@@ -15,7 +16,7 @@ interface ResultScreenProps {
   loading?: boolean;
 }
 
-export function ResultScreen({ result, scores, isHost, onNewRound, onCloseRoom, loading }: ResultScreenProps) {
+export function ResultScreen({ result, scores, votes, isHost, playerName, onNewRound, onCloseRoom, loading }: ResultScreenProps) {
   if (!result) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center">
@@ -24,26 +25,17 @@ export function ResultScreen({ result, scores, isHost, onNewRound, onCloseRoom, 
     );
   }
 
-  const crewWins = result.correct;
+  const myVote = votes[playerName];
+  const iGotPoint = myVote === result.agent;
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-4">
-        {/* Win Banner */}
-        <div
-          className={`rounded-[14px] border-2 p-6 text-center space-y-2 ${
-            crewWins
-              ? 'bg-green-950 border-green'
-              : 'bg-red-950 border-accent'
-          }`}
-        >
-          <div className="text-4xl">{crewWins ? '🎉' : '🕵️'}</div>
-          <h1 className={`font-heading text-5xl ${crewWins ? 'text-green' : 'text-accent'}`}>
-            {crewWins ? 'CREW WINS!' : 'IMPOSTER WINS!'}
-          </h1>
-          <p className="font-body text-text text-sm mt-1">
-            The imposter was <span className="font-bold">{result.imposter}</span>
-          </p>
+
+        {/* Agent reveal */}
+        <div className="bg-card border-2 border-border rounded-[14px] p-6 text-center space-y-2">
+          <p className="text-xs text-muted font-body uppercase tracking-widest">The agent was</p>
+          <p className="font-heading text-4xl text-accent">{result.agent}</p>
 
           {result.mode === 'super' ? (
             <div className="mt-3 space-y-1">
@@ -52,7 +44,7 @@ export function ResultScreen({ result, scores, isHost, onNewRound, onCloseRoom, 
                 Crew word: <span className="text-green font-bold">{result.word}</span>
               </p>
               <p className="text-xs text-muted font-body">
-                Imposter word: <span className="text-accent font-bold">{result.imposterWord}</span>
+                Agent word: <span className="text-accent font-bold">{result.agentWord}</span>
               </p>
             </div>
           ) : (
@@ -60,12 +52,16 @@ export function ResultScreen({ result, scores, isHost, onNewRound, onCloseRoom, 
               The word was <span className="text-text font-bold">{result.word}</span>
             </p>
           )}
+        </div>
 
-          {!result.correct && (
-            <p className="text-xs text-muted font-body mt-1">
-              {result.accused} was accused instead
-            </p>
-          )}
+        {/* My result this round */}
+        <div className={`rounded-[14px] border-2 px-4 py-3 text-center ${iGotPoint ? 'bg-green-950 border-green' : 'bg-surface border-border'}`}>
+          <p className={`font-heading text-2xl ${iGotPoint ? 'text-green' : 'text-muted'}`}>
+            {iGotPoint ? '+1 point' : '+0 points'}
+          </p>
+          <p className="text-xs text-muted font-body mt-1">
+            {myVote ? `You voted for ${myVote}` : 'You did not vote'}
+          </p>
         </div>
 
         {/* Vote Tally */}
@@ -84,20 +80,10 @@ export function ResultScreen({ result, scores, isHost, onNewRound, onCloseRoom, 
         <div className="space-y-3">
           {isHost ? (
             <>
-              <Button
-                onClick={onNewRound}
-                disabled={loading}
-                variant="gold"
-                className="w-full text-lg py-4"
-              >
+              <Button onClick={onNewRound} disabled={loading} variant="gold" className="w-full text-lg py-4">
                 {loading ? 'Loading...' : '▶ New Round'}
               </Button>
-              <Button
-                onClick={onCloseRoom}
-                disabled={loading}
-                variant="danger"
-                className="w-full"
-              >
+              <Button onClick={onCloseRoom} disabled={loading} variant="danger" className="w-full">
                 Close Room
               </Button>
             </>
