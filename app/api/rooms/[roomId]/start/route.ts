@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
-import type { RoomState } from '@/lib/types';
-import {
-  pickWord,
-  pickCategory,
-  pickTwoWordsFromCategory,
-  pickImposter,
-  assignTurnOrder,
-} from '@/lib/game-logic';
+import type { RoomState, Gamezone } from '@/lib/types';
+import { buildRoundState } from '@/lib/game-logic';
 
 export async function POST(
   request: NextRequest,
@@ -30,7 +24,6 @@ export async function POST(
     const allPlayerNames = Object.keys(room.players);
 
     if (force) {
-      // Move non-ready players to standby
       for (const pName of allPlayerNames) {
         if (!room.players[pName].ready) {
           room.standby.push(pName);
@@ -50,48 +43,24 @@ export async function POST(
       return NextResponse.json({ error: 'Need at least 2 players to start' }, { status: 409 });
     }
 
-    // Pick word / category based on mode
-    let word = '';
-    let imposterWord = '';
-    let category = '';
-
-    if (room.mode === 'imposter') {
-      word = pickWord(room.usedWords, room.lastWord);
-      room.usedWords = [...room.usedWords, word].slice(-10);
-      room.lastWord = word;
-    } else {
-      category = pickCategory(room.usedCategories, room.category);
-      const [crewWord, impWord] = pickTwoWordsFromCategory(category);
-      word = crewWord;
-      imposterWord = impWord;
-      room.usedCategories = [...room.usedCategories, category].slice(-10);
+    // Load gamezone categories if this room was created from a gamezone
+    let gamezoneCategories: Record<string, string[]> | undefined;
+    if (room.ownerUsername && room.gamezoneId) {
+      const userId = await redis.get<string>(`user:username:${room.ownerUsername}`);
+      if (userId) {
+        const gamezones = await redis.get<Gamezone[]>(`user:${userId}:gamezones`) ?? [];
+        const gz = gamezones.find((g) => g.id === room.gamezoneId);
+        if (gz) {
+          gamezoneCategories = Object.fromEntries(
+            gz.categories
+              .filter((c) => c.words.length >= 2)
+              .map((c) => [c.name, c.words])
+          );
+        }
+      }
     }
 
-    // Pick imposter
-    const imposterName = pickImposter(playerNames, room.lastImposter);
-
-    // Assign turn order
-    const turnOrder = assignTurnOrder(playerNames);
-
-    // Assign roles and turns to players
-    for (const pName of playerNames) {
-      room.players[pName].role = pName === imposterName ? 'imposter' : 'word';
-      room.players[pName].turn = turnOrder[pName];
-      room.players[pName].ready = false;
-    }
-
-    room.word = word;
-    room.imposterWord = imposterWord;
-    room.category = category;
-    room.imposter = imposterName;
-    room.lastImposter = imposterName;
-    room.votes = {};
-    room.result = null;
-    room.turnOrder = turnOrder;
-    room.phase = 'reveal';
-    room.round = room.round + 1;
-    room.readyStartedAt = 0;
-    room.updatedAt = Date.now();
+    buildRoundState(room, gamezoneCategories);
 
     await redis.set(`room:${roomId}`, room, { ex: 7200 });
 

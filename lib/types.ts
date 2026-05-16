@@ -12,7 +12,7 @@ export interface RoomState {
       turn: number;
     };
   };
-  standby: string[]; // players waiting for next round (joined mid-round or skipped)
+  standby: string[];
   word: string;
   imposterWord: string;
   category: string;
@@ -33,8 +33,10 @@ export interface RoomState {
     mode: 'imposter' | 'super';
   } | null;
   turnOrder: { [name: string]: number };
-  readyStartedAt: number; // unix ms timestamp when first player pressed ready; 0 if none
+  readyStartedAt: number;
   updatedAt: number;
+  ownerUsername?: string;
+  gamezoneId?: string;
 }
 
 export interface PlayerStateView {
@@ -61,4 +63,26 @@ export interface PlayerStateView {
   result: (RoomState['result'] & { tally: Record<string, number> }) | null;
   turnOrder: { [name: string]: number };
   readyStartedAt: number;
+}
+
+export interface GamezoneCategory {
+  id: string;
+  name: string;
+  words: string[];
+}
+
+export interface Gamezone {
+  id: string;
+  userId: string;
+  name: string;
+  categories: GamezoneCategory[];
+  createdAt: number;
+}
+
+export interface UserRecord {
+  id: string;
+  username: string;
+  email: string;
+  passwordHash: string;
+  createdAt: number;
 }

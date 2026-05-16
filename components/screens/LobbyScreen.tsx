@@ -1,13 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import type { PlayerStateView } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { PlayerList } from '@/components/ui/PlayerList';
-
-const KICK_SECONDS = 30;
-const FORCE_START_SECONDS = 20;
 
 interface LobbyScreenProps {
   state: PlayerStateView;
@@ -25,49 +21,7 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
   const playerNames = Object.keys(state.players);
   const allReady = playerNames.length > 0 && playerNames.every((p) => state.players[p].ready);
   const waitingCount = playerNames.filter((p) => !state.players[p].ready).length;
-  const readyCount = playerNames.length - waitingCount;
-
-  // Personal 30s kick countdown — starts on mount, stops when ready pressed
-  const [kickSecondsLeft, setKickSecondsLeft] = useState(KICK_SECONDS);
-  const [kickFired, setKickFired] = useState(false);
-
-  useEffect(() => {
-    if (isReady || kickFired) return;
-    if (kickSecondsLeft <= 0) {
-      setKickFired(true);
-      onLeave();
-      return;
-    }
-    const id = setTimeout(() => setKickSecondsLeft((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [kickSecondsLeft, isReady, kickFired, onLeave]);
-
-  // Group 20s force-start countdown — starts when first player presses ready
-  const computeForceLeft = useCallback(() => {
-    if (!state.readyStartedAt) return null;
-    const elapsed = Math.floor((Date.now() - state.readyStartedAt) / 1000);
-    return Math.max(0, FORCE_START_SECONDS - elapsed);
-  }, [state.readyStartedAt]);
-
-  const [forceSecondsLeft, setForceSecondsLeft] = useState<number | null>(null);
-  const [forceStartFired, setForceStartFired] = useState(false);
-
-  useEffect(() => {
-    if (!state.readyStartedAt) { setForceSecondsLeft(null); setForceStartFired(false); return; }
-    const tick = () => setForceSecondsLeft(computeForceLeft());
-    tick();
-    const id = setInterval(tick, 500);
-    return () => clearInterval(id);
-  }, [state.readyStartedAt, computeForceLeft]);
-
-  useEffect(() => {
-    if (isHost && forceSecondsLeft === 0 && !forceStartFired && readyCount >= 2) {
-      setForceStartFired(true);
-      onForceStart();
-    }
-  }, [isHost, forceSecondsLeft, forceStartFired, readyCount, onForceStart]);
-
-  const showForceCountdown = forceSecondsLeft !== null && !allReady;
+  const canStart = playerNames.length >= 2;
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
@@ -88,7 +42,7 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
               <p className="text-xs text-muted font-body mt-1">Room ID: {state.roomId}</p>
             </div>
             <Badge variant={state.mode === 'super' ? 'super' : 'imposter'}>
-              {state.mode === 'super' ? 'Super Imposter' : 'Classic'}
+              {state.mode === 'super' ? 'Super Blindspot' : 'Classic'}
             </Badge>
           </div>
           {state.round > 0 && <p className="text-sm text-muted font-body">Round {state.round}</p>}
@@ -100,32 +54,22 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
           <PlayerList players={state.players} host={state.host} myName={playerName} />
         </div>
 
-        {/* Personal kick timer — only shown before ready */}
-        {!isReady && (
-          <div className={`rounded-[14px] border p-4 text-center ${kickSecondsLeft <= 10 ? 'border-accent bg-red-950' : 'border-border bg-card'}`}>
-            <p className="text-muted font-body text-xs mb-1">Press ready or you&apos;ll be removed in</p>
-            <p className={`font-heading text-4xl ${kickSecondsLeft <= 10 ? 'text-accent' : 'text-text'}`}>
-              {kickSecondsLeft}s
-            </p>
-          </div>
-        )}
-
-        {/* Group force-start countdown — shown after someone presses ready */}
-        {showForceCountdown && (
-          <div className={`rounded-[14px] border p-4 text-center ${forceSecondsLeft !== null && forceSecondsLeft <= 5 ? 'border-accent bg-red-950' : 'border-border bg-card'}`}>
-            <p className="text-muted font-body text-xs mb-1">Game starts automatically in</p>
-            <p className={`font-heading text-4xl ${forceSecondsLeft !== null && forceSecondsLeft <= 5 ? 'text-accent' : 'text-gold'}`}>
-              {forceSecondsLeft}s
-            </p>
-            <p className="text-muted font-body text-xs mt-1">Players not ready will be skipped</p>
-          </div>
-        )}
-
         {/* Actions */}
         <div className="space-y-3">
           {!isReady && (
             <Button onClick={onReady} disabled={loading} className="w-full text-lg py-4" variant="primary">
               {loading ? 'Loading...' : "I'm Ready ✓"}
+            </Button>
+          )}
+
+          {isHost && (
+            <Button
+              onClick={onForceStart}
+              disabled={loading || !canStart}
+              className="w-full text-lg py-4"
+              variant="secondary"
+            >
+              {loading ? 'Starting...' : 'Start Game →'}
             </Button>
           )}
 

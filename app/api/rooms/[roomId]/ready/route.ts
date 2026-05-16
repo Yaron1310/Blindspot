@@ -29,11 +29,6 @@ export async function POST(
 
     room.players[name].ready = true;
 
-    // Start the force-start countdown on first ready
-    if (!room.readyStartedAt) {
-      room.readyStartedAt = Date.now();
-    }
-
     const playerNames = Object.keys(room.players);
     const allReady = playerNames.length >= 2 && playerNames.every((p) => room.players[p].ready);
 

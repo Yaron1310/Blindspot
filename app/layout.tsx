@@ -16,7 +16,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Imposter Word Game',
+  title: 'Blindspot',
   description: 'A word-based social deduction game',
 };
 

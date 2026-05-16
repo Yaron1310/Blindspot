@@ -46,8 +46,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { roomName: string; hostName: string; mode: 'imposter' | 'super' };
-    const { roomName, hostName, mode } = body;
+    const body = await request.json() as { roomName: string; hostName: string; mode: 'imposter' | 'super'; ownerUsername?: string; gamezoneId?: string };
+    const { roomName, hostName, mode, ownerUsername, gamezoneId } = body;
 
     if (!roomName || roomName.trim().length === 0) {
       return NextResponse.json({ error: 'Room name is required' }, { status: 400 });
@@ -87,6 +87,8 @@ export async function POST(request: NextRequest) {
       turnOrder: {},
       readyStartedAt: 0,
       updatedAt: Date.now(),
+      ...(ownerUsername ? { ownerUsername } : {}),
+      ...(gamezoneId ? { gamezoneId } : {}),
     };
 
     await redis.set(`room:${roomId}`, state, { ex: 7200 });
