@@ -45,9 +45,12 @@ export async function POST(
     room.players[name].ready = true;
 
     const playerNames = Object.keys(room.players);
+    const readyCount = playerNames.filter((p) => room.players[p].ready).length;
     const allReady = playerNames.length >= 2 && playerNames.every((p) => room.players[p].ready);
+    const maxPlayersReached = room.maxPlayers > 0 && readyCount >= room.maxPlayers && playerNames.length >= 2;
+    const shouldStart = maxPlayersReached || allReady;
 
-    if (allReady) {
+    if (shouldStart) {
       const gamezoneCategories = await loadGamezoneCategories(room);
       buildRoundState(room, gamezoneCategories);
     } else {
@@ -56,7 +59,7 @@ export async function POST(
 
     await redis.set(`room:${roomId}`, room, { ex: TTL });
 
-    return NextResponse.json({ ok: true, started: allReady });
+    return NextResponse.json({ ok: true, started: shouldStart });
   } catch (err) {
     console.error('POST /api/rooms/[roomId]/ready error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

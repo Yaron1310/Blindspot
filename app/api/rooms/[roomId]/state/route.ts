@@ -68,6 +68,7 @@ export async function GET(
       category: room.phase === 'result' ? room.category : (room.mode === 'super' ? room.category : ''),
       result: resultWithTally,
       turnOrder: room.turnOrder,
+      maxPlayers: room.maxPlayers ?? 0,
       readyStartedAt: room.readyStartedAt ?? 0,
       ...(room.ownerUsername ? { ownerUsername: room.ownerUsername } : {}),
     };
