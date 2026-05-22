@@ -34,6 +34,7 @@ export default function RoomsPage() {
   const { t } = useLanguage();
   const [playerName, setPlayerName] = useState('');
   const [rooms, setRooms] = useState<RoomInfo[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [roomName, setRoomName] = useState('');
   const [maxPlayers, setMaxPlayers] = useState('');
   const [creating, setCreating] = useState(false);
@@ -130,35 +131,47 @@ export default function RoomsPage() {
 
         {/* Create Room */}
         <Card className="space-y-4">
-          <h2 className="font-heading text-xl text-text">{t('createRoomTitle')}</h2>
-          <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('roomNameLabel')}</label>
-            <input
-              type="text"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              placeholder={t('roomNamePlaceholder')}
-              maxLength={40}
-              className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
-            />
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-xl text-text">{t('createRoomTitle')}</h2>
+            <button
+              onClick={() => setShowCreateForm((v) => !v)}
+              className="text-sm font-body text-muted hover:text-text transition-colors"
+            >
+              {showCreateForm ? '▲ Hide' : '▼ New Room'}
+            </button>
           </div>
-          <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('numPlayersLabel')}</label>
-            <input
-              type="number"
-              value={maxPlayers}
-              onChange={(e) => setMaxPlayers(e.target.value)}
-              placeholder={t('numPlayersPlaceholder')}
-              min={2}
-              max={20}
-              className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
-            />
-            <p className="text-xs text-muted font-body">{t('numPlayersHint')}</p>
-          </div>
-          <Button onClick={handleCreate} disabled={creating || !roomName.trim()} className="w-full" variant="primary">
-            {creating ? t('creating') : t('createRoom')}
-          </Button>
+          {showCreateForm && (
+            <>
+              <div className="space-y-2">
+                <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('roomNameLabel')}</label>
+                <input
+                  type="text"
+                  value={roomName}
+                  onChange={(e) => setRoomName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                  placeholder={t('roomNamePlaceholder')}
+                  maxLength={40}
+                  className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('numPlayersLabel')}</label>
+                <input
+                  type="number"
+                  value={maxPlayers}
+                  onChange={(e) => setMaxPlayers(e.target.value)}
+                  placeholder={t('numPlayersPlaceholder')}
+                  min={2}
+                  max={20}
+                  className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+                />
+                <p className="text-xs text-muted font-body">{t('numPlayersHint')}</p>
+              </div>
+              <Button onClick={handleCreate} disabled={creating || !roomName.trim()} className="w-full" variant="primary">
+                {creating ? t('creating') : t('createRoom')}
+              </Button>
+            </>
+          )}
         </Card>
 
         {/* Open Rooms */}

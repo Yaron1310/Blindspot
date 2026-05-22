@@ -23,9 +23,9 @@ function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} text-muted hover:text-text transition-colors font-body text-sm flex items-center gap-1 z-10`}
+      className={`absolute top-2 ${isRtl ? 'right-4' : 'left-4'} text-muted hover:text-text transition-colors font-body text-sm flex items-center gap-1 z-10`}
     >
-      {t('leave')}
+      {isRtl ? `${t('leave')} →` : `← ${t('leave')}`}
     </button>
   );
 }
@@ -135,7 +135,7 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4 relative">
         <BackButton onClick={handleLeave} />
-        <div className="w-full max-w-md text-center space-y-6">
+        <div className="w-full max-w-md text-center space-y-6 pt-4">
           <div className="text-5xl">⏳</div>
           <h1 className="font-heading text-4xl text-text">{t('roundInProgress')}</h1>
           <p className="text-muted font-body">{t('roundInProgressMsg')}</p>

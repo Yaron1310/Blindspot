@@ -18,7 +18,7 @@ export function PlayerList({ players, host, myName }: PlayerListProps) {
       {playerNames.map((name) => {
         const player = players[name];
         return (
-          <div key={name} className="flex items-center justify-between py-1">
+          <div key={name} className="flex items-center gap-[10px] py-1">
             <span className="font-body text-text text-sm">{name}</span>
             <div className="flex items-center gap-1">
               {name === myName && <Badge variant="you">{t('badgeYou')}</Badge>}

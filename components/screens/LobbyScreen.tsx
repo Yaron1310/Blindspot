@@ -18,7 +18,7 @@ interface LobbyScreenProps {
 }
 
 export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave, loading }: LobbyScreenProps) {
-  const { t } = useLanguage();
+  const { t, isRtl } = useLanguage();
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
   const isHost = state.host === playerName;
@@ -40,12 +40,12 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md space-y-4 pt-4">
 
         {/* Header */}
         <div className="grid grid-cols-3 items-center">
           <button onClick={onLeave} className="text-muted hover:text-text transition-colors font-body text-sm text-start">
-            {t('backToRooms')}
+            {isRtl ? `${t('backToRooms')} →` : `← ${t('backToRooms')}`}
           </button>
           <div className="flex justify-center">
             <Link href="/" className="flex items-center gap-2 text-text hover:opacity-80 transition-opacity">

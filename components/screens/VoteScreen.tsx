@@ -22,7 +22,7 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
   if (isClassicSpy) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="w-full max-w-md text-center space-y-6">
+        <div className="w-full max-w-md text-center space-y-6 pt-4">
           <div className="text-6xl">🕵️</div>
           <h1 className="font-heading text-4xl text-accent">{t('youAreTheSpy')}</h1>
           <p className="text-muted font-body">{t('waitingToVote')}</p>
@@ -36,7 +36,7 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
     const votedFor = votes[myName];
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-        <div className="w-full max-w-md text-center space-y-6">
+        <div className="w-full max-w-md text-center space-y-6 pt-4">
           <h1 className="font-heading text-4xl text-text">{t('voteCast')}</h1>
           {votedFor && (
             <p className="text-muted font-body">
@@ -61,7 +61,7 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md space-y-4 pt-4">
         <div className="text-center space-y-2">
           <h1 className="font-heading text-3xl text-text">{title}</h1>
           <p className="text-muted font-body text-sm">{t('tapToVote')}</p>

@@ -18,7 +18,7 @@ export function DiscussScreen({ mode, turnOrder, myName, myTurn, onStartVoting }
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md space-y-4 pt-4">
         <div className="text-center space-y-2">
           <h1 className="font-heading text-4xl text-text">{t('discussion')}</h1>
           <p className="text-muted font-body text-sm max-w-sm mx-auto">{hint}</p>
