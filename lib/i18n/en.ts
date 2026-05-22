@@ -21,8 +21,8 @@ export const en = {
   continue: 'Continue →',
 
   // lobby
-  backToRooms: '← Rooms',
-  leave: '← Leave',
+  backToRooms: 'Rooms',
+  leave: 'Leave',
   round: 'Round',
   playersLabel: 'PLAYERS',
   imReady: "I'm Ready ✓",

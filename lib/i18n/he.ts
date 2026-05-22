@@ -23,8 +23,8 @@ export const he: Record<TranslationKeys, string> = {
   continue: 'המשך ←',
 
   // lobby
-  backToRooms: 'חדרים →',
-  leave: 'יציאה →',
+  backToRooms: 'חדרים',
+  leave: 'יציאה',
   round: 'סיבוב',
   playersLabel: 'שחקנים',
   imReady: 'מוכן ✓',

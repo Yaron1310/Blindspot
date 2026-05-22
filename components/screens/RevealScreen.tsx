@@ -51,7 +51,7 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md space-y-4 pt-4">
         <div className={`${cardBg} border-2 ${cardBorder} rounded-[14px] p-8 text-center space-y-4`}>
           <p className={`font-heading text-sm tracking-widest ${labelColor}`}>{cardLabel}</p>
           {isClassicSpy && <div className="text-6xl mb-2">🕵️</div>}

@@ -30,10 +30,6 @@ body {
   align-items: start;
 }
 
-.min-h-screen.bg-bg {
-  padding-top: 2.5rem;
-}
-
 .logyx-footer {
   display: flex;
   justify-content: center;
