@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/lib/i18n';
 import type { Gamezone, GamezoneCategory } from '@/lib/types';
 
 interface CategoryDraft {
@@ -16,6 +17,7 @@ interface CategoryDraft {
 export default function EditGamezonePage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const { t, isRtl } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const [gzName, setGzName] = useState('');
   const [categories, setCategories] = useState<CategoryDraft[]>([]);
@@ -74,11 +76,11 @@ export default function EditGamezonePage() {
 
   const handleSave = async () => {
     setError('');
-    if (!gzName.trim()) { setError('Gamezone name is required'); return; }
+    if (!gzName.trim()) { setError(t('gamezoneNameRequired')); return; }
 
     for (const cat of categories) {
-      if (!cat.name.trim()) { setError('All categories need a name'); return; }
-      if (cat.words.length < 2) { setError(`Category "${cat.name}" needs at least 2 words`); return; }
+      if (!cat.name.trim()) { setError(t('allCategoriesNeedName')); return; }
+      if (cat.words.length < 2) { setError(t('categoryNeedsWords', { name: cat.name })); return; }
     }
 
     setSaving(true);
@@ -95,10 +97,10 @@ export default function EditGamezonePage() {
         body: JSON.stringify({ name: gzName, categories: finalCategories }),
       });
 
-      if (!res.ok) { setError('Failed to save'); return; }
+      if (!res.ok) { setError(t('failedToSave')); return; }
       router.push('/dashboard');
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -106,7 +108,7 @@ export default function EditGamezonePage() {
 
   if (authLoading || !user || loading) return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
-      <p className="text-muted font-body">Loading...</p>
+      <p className="text-muted font-body">{t('loading')}</p>
     </div>
   );
 
@@ -114,13 +116,15 @@ export default function EditGamezonePage() {
     <div className="min-h-screen bg-bg p-4">
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
-          <Link href="/dashboard" className="text-muted hover:text-text font-body text-sm transition-colors">← Dashboard</Link>
-          <h1 className="font-heading text-4xl text-text mt-1">EDIT GAMEZONE</h1>
+          <Link href="/dashboard" className="text-muted hover:text-text font-body text-sm transition-colors">
+            {isRtl ? `${t('dashboardLink')} →` : `← ${t('dashboardLink')}`}
+          </Link>
+          <h1 className="font-heading text-4xl text-text mt-1">{t('editGamezoneTitle')}</h1>
         </div>
 
         <div className="bg-card border border-border rounded-[14px] p-6 space-y-4">
           <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">Gamezone Name</label>
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('gamezoneNameLabel')}</label>
             <input
               type="text"
               value={gzName}
@@ -131,7 +135,7 @@ export default function EditGamezonePage() {
         </div>
 
         <div className="space-y-3">
-          <h2 className="font-heading text-2xl text-text">CATEGORIES</h2>
+          <h2 className="font-heading text-2xl text-text">{t('categoriesSection')}</h2>
           {categories.map((cat) => (
             <div key={cat.id} className="bg-card border border-border rounded-[14px] p-5 space-y-4">
               <div className="flex items-center gap-2">
@@ -139,7 +143,7 @@ export default function EditGamezonePage() {
                   type="text"
                   value={cat.name}
                   onChange={(e) => updateCategoryName(cat.id, e.target.value)}
-                  placeholder="Category name"
+                  placeholder={t('categoryNamePlaceholder')}
                   className="flex-1 bg-bg border border-border rounded-[10px] px-3 py-2 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
                 />
                 <button
@@ -171,18 +175,18 @@ export default function EditGamezonePage() {
                   value={cat.wordInput}
                   onChange={(e) => updateWordInput(cat.id, e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addWord(cat.id); } }}
-                  placeholder="Add a word..."
+                  placeholder={t('addWordPlaceholder')}
                   className="flex-1 bg-bg border border-border rounded-[10px] px-3 py-2 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
                 />
                 <button
                   onClick={() => addWord(cat.id)}
                   className="bg-card hover:bg-border border border-border text-text font-body text-sm px-3 py-2 rounded-[10px] transition-colors"
                 >
-                  Add
+                  {t('addWord')}
                 </button>
               </div>
               {cat.words.length < 2 && (
-                <p className="text-xs text-muted font-body">Add at least 2 words to this category</p>
+                <p className="text-xs text-muted font-body">{t('minTwoWords')}</p>
               )}
             </div>
           ))}
@@ -191,7 +195,7 @@ export default function EditGamezonePage() {
             onClick={addCategory}
             className="w-full border border-dashed border-border rounded-[14px] py-4 text-muted hover:text-text hover:border-text font-body text-sm transition-colors"
           >
-            + Add Category
+            {t('addCategory')}
           </button>
         </div>
 
@@ -202,7 +206,7 @@ export default function EditGamezonePage() {
           disabled={saving}
           className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
         >
-          {saving ? 'Saving...' : 'Save Changes →'}
+          {saving ? t('saving') : isRtl ? `← ${t('saveChanges')}` : `${t('saveChanges')} →`}
         </button>
       </div>
     </div>

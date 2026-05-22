@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Gamezone } from '@/lib/types';
 import { HowToPlayLanguageBar } from '@/components/ui/HowToPlayLanguageBar';
+import { useLanguage } from '@/lib/i18n';
 
 interface PublicProfile {
   username: string;
@@ -33,6 +34,7 @@ function AppHeader() {
 export default function UserPage() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
+  const { t, isRtl } = useLanguage();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -104,13 +106,13 @@ export default function UserPage() {
 
   const handleSubmit = async () => {
     const trimmedName = playerName.trim();
-    if (!trimmedName) { setNameError('Please enter your name'); return; }
-    if (trimmedName.length > 24) { setNameError('Name must be 24 characters or fewer'); return; }
+    if (!trimmedName) { setNameError(t('nameRequired')); return; }
+    if (trimmedName.length > 24) { setNameError(t('nameTooLong')); return; }
 
     if (!modal?.joinRoomId) {
       const trimmedRoom = roomName.trim();
-      if (!trimmedRoom) { setNameError('Please enter a room name'); return; }
-      if (trimmedRoom.length > 40) { setNameError('Room name must be 40 characters or fewer'); return; }
+      if (!trimmedRoom) { setNameError(t('roomNameRequired')); return; }
+      if (trimmedRoom.length > 40) { setNameError(t('roomNameTooLong')); return; }
     }
 
     if (!modal) return;
@@ -129,7 +131,7 @@ export default function UserPage() {
         if (res.ok) {
           router.push(`/rooms/${modal.joinRoomId}`);
         } else {
-          setNameError(data.error ?? 'Failed to join room');
+          setNameError(data.error ?? t('failedToJoinRoom'));
         }
       } else {
         const res = await fetch('/api/rooms', {
@@ -147,11 +149,11 @@ export default function UserPage() {
         if (res.ok) {
           router.push(`/rooms/${data.roomId}`);
         } else {
-          setNameError(data.error ?? 'Failed to create room');
+          setNameError(data.error ?? t('failedToCreateRoom'));
         }
       }
     } catch {
-      setNameError('Something went wrong.');
+      setNameError(t('somethingWentWrong'));
     } finally {
       setSubmitting(false);
     }
@@ -159,7 +161,7 @@ export default function UserPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
-      <p className="text-muted font-body">Loading...</p>
+      <p className="text-muted font-body">{t('loading')}</p>
     </div>
   );
 
@@ -167,8 +169,10 @@ export default function UserPage() {
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
       <div className="text-center space-y-4">
         <p className="font-heading text-4xl text-text">404</p>
-        <p className="text-muted font-body">User not found</p>
-        <Link href="/" className="text-accent font-body text-sm hover:underline">← Home</Link>
+        <p className="text-muted font-body">{t('userNotFound')}</p>
+        <Link href="/" className="text-accent font-body text-sm hover:underline">
+          {isRtl ? `${t('home')} →` : `← ${t('home')}`}
+        </Link>
       </div>
     </div>
   );
@@ -183,13 +187,13 @@ export default function UserPage() {
         </div>
 
         <div>
-          <p className="text-muted font-body text-xs uppercase tracking-widest">Gamezones by</p>
+          <p className="text-muted font-body text-xs uppercase tracking-widest">{t('gamezonesBy')}</p>
           <h1 className="font-heading text-3xl text-text">@{profile!.username}</h1>
         </div>
 
         {profile!.gamezones.length === 0 ? (
           <div className="bg-card border border-border rounded-[14px] p-8 text-center">
-            <p className="text-muted font-body text-sm">No gamezones published yet.</p>
+            <p className="text-muted font-body text-sm">{t('noGamezonesPublished')}</p>
           </div>
         ) : (
           profile!.gamezones.map((gz) => {
@@ -200,14 +204,14 @@ export default function UserPage() {
                   <div>
                     <p className="font-heading text-2xl text-text">{gz.name}</p>
                     <p className="text-muted font-body text-xs mt-1">
-                      {gz.categories.length} {gz.categories.length === 1 ? 'category' : 'categories'}
+                      {gz.categories.length} {gz.categories.length === 1 ? t('category') : t('categories')}
                     </p>
                   </div>
                   <button
                     onClick={() => openCreateModal(gz)}
                     className="bg-card hover:bg-border border border-border text-text font-body font-medium px-4 py-2 rounded-[14px] transition-all text-sm"
                   >
-                    + Create Room
+                    + {t('createRoom')}
                   </button>
                 </div>
 
@@ -223,20 +227,20 @@ export default function UserPage() {
 
                 {gzRooms.length > 0 && (
                   <div className="space-y-2 pt-1 border-t border-border">
-                    <p className="text-xs text-muted font-body uppercase tracking-widest pt-2">Open Rooms</p>
+                    <p className="text-xs text-muted font-body uppercase tracking-widest pt-2">{t('openRoomsSection')}</p>
                     {gzRooms.map((room) => (
                       <div key={room.id} className="flex items-center justify-between gap-2 bg-bg border border-border rounded-[10px] px-4 py-3">
                         <div>
                           <p className="font-body text-sm text-text">{room.name}</p>
                           <p className="font-body text-xs text-muted">
-                            host: {room.host} · {room.playerCount} {room.playerCount === 1 ? 'player' : 'players'}
+                            {t('hostInfo', { host: room.host, count: room.playerCount, players: room.playerCount === 1 ? t('player') : t('players') })}
                           </p>
                         </div>
                         <button
                           onClick={() => openJoinModal(gz, room.id)}
                           className="bg-accent hover:bg-red-600 text-white font-body font-medium px-4 py-2 rounded-[10px] transition-all text-sm"
                         >
-                          Join
+                          {t('join')}
                         </button>
                       </div>
                     ))}
@@ -252,21 +256,21 @@ export default function UserPage() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50" onClick={() => setModal(null)}>
           <div className="bg-card border border-border rounded-[14px] p-6 w-full max-w-sm space-y-4" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-heading text-2xl text-text">
-              {modal.joinRoomId ? 'JOIN ROOM' : 'CREATE ROOM'}
+              {modal.joinRoomId ? t('joinRoomTitle') : t('createRoomTitle')}
             </h2>
             <p className="text-muted font-body text-sm">
-              Gamezone: <strong className="text-text">{modal.gz.name}</strong>
+              {t('gamezoneLabel')}: <strong className="text-text">{modal.gz.name}</strong>
             </p>
 
             {!modal.joinRoomId && (
               <div className="space-y-2">
-                <label className="block text-xs text-muted font-body uppercase tracking-widest">Room Name</label>
+                <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('roomNameLabel')}</label>
                 <input
                   type="text"
                   value={roomName}
                   onChange={(e) => { setRoomName(e.target.value); setNameError(''); }}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                  placeholder="Friday Night..."
+                  placeholder={t('roomNamePlaceholder')}
                   maxLength={40}
                   autoFocus
                   className="w-full bg-bg border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
@@ -275,13 +279,13 @@ export default function UserPage() {
             )}
 
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Your Name</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('yourName')}</label>
               <input
                 type="text"
                 value={playerName}
                 onChange={(e) => { setPlayerName(e.target.value); setNameError(''); }}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                placeholder="Enter your name..."
+                placeholder={t('namePlaceholder')}
                 maxLength={24}
                 autoFocus={!!modal.joinRoomId}
                 className="w-full bg-bg border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
@@ -294,7 +298,9 @@ export default function UserPage() {
               disabled={submitting}
               className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
             >
-              {submitting ? '...' : modal.joinRoomId ? 'Join →' : 'Create Room →'}
+              {submitting ? '...' : modal.joinRoomId
+                ? (isRtl ? `${t('join')} ←` : `${t('join')} →`)
+                : (isRtl ? `${t('createRoom')} ←` : `${t('createRoom')} →`)}
             </button>
           </div>
         </div>

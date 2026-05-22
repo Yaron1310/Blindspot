@@ -164,6 +164,53 @@ export const en = {
   // password input
   showPassword: 'Show password',
   hidePassword: 'Hide password',
+
+  // gamezone — public page
+  userNotFound: 'User not found',
+  gamezonesBy: 'Gamezones by',
+  noGamezonesPublished: 'No gamezones published yet.',
+  category: 'category',
+  categories: 'categories',
+  openRoomsSection: 'Open Rooms',
+  joinRoomTitle: 'JOIN ROOM',
+  gamezoneLabel: 'Gamezone',
+  roomNameTooLong: 'Room name must be 40 characters or fewer',
+  failedToJoinRoom: 'Failed to join room',
+  failedToCreateRoom: 'Failed to create room',
+  somethingWentWrong: 'Something went wrong.',
+
+  // gamezone — dashboard
+  dashboard: 'DASHBOARD',
+  home: 'Home',
+  dashboardLink: 'Dashboard',
+  signOut: 'Sign out',
+  copy: 'Copy',
+  copied: 'Copied!',
+  gamezonesSection: 'GAMEZONES',
+  newGamezoneBtn: '+ New',
+  noGamezonesYet: 'No gamezones yet.',
+  createFirstGamezone: 'Create your first gamezone',
+  edit: 'Edit',
+  delete: 'Delete',
+
+  // gamezone — new / edit
+  newGamezoneTitle: 'NEW GAMEZONE',
+  editGamezoneTitle: 'EDIT GAMEZONE',
+  gamezoneNameLabel: 'Gamezone Name',
+  categoriesSection: 'CATEGORIES',
+  categoryNamePlaceholder: 'Category name',
+  addWordPlaceholder: 'Add a word...',
+  addWord: 'Add',
+  minTwoWords: 'Add at least 2 words to this category',
+  addCategory: '+ Add Category',
+  saveGamezone: 'Save Gamezone',
+  saveChanges: 'Save Changes',
+  saving: 'Saving...',
+  gamezoneNameRequired: 'Gamezone name is required',
+  allCategoriesNeedName: 'All categories need a name',
+  categoryNeedsWords: 'Category "{name}" needs at least 2 words',
+  failedToCreateGamezone: 'Failed to create gamezone',
+  failedToSave: 'Failed to save',
 } as const;
 
 export type TranslationKeys = keyof typeof en;
