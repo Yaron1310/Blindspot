@@ -25,7 +25,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       className={`absolute top-2 ${isRtl ? 'right-4' : 'left-4'} text-muted hover:text-text transition-colors font-body text-sm flex items-center gap-1 z-10`}
     >
-      {isRtl ? `${t('leave')} →` : `← ${t('leave')}`}
+      {isRtl ? `→ ${t('leave')}` : `← ${t('leave')}`}
     </button>
   );
 }
