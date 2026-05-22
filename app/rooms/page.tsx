@@ -131,15 +131,12 @@ export default function RoomsPage() {
 
         {/* Create Room */}
         <Card className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl text-text">{t('createRoomTitle')}</h2>
-            <button
-              onClick={() => setShowCreateForm((v) => !v)}
-              className="text-sm font-body text-muted hover:text-text transition-colors"
-            >
-              {showCreateForm ? '▲ Hide' : '▼ New Room'}
-            </button>
-          </div>
+          <button
+            onClick={() => setShowCreateForm((v) => !v)}
+            className="font-heading text-xl text-text w-full text-start hover:opacity-70 transition-opacity"
+          >
+            {t('createRoomTitle')}
+          </button>
           {showCreateForm && (
             <>
               <div className="space-y-2">
