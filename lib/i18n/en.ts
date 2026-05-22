@@ -22,6 +22,7 @@ export const en = {
 
   // lobby
   backToRooms: '← Rooms',
+  leave: '← Leave',
   round: 'Round',
   playersLabel: 'PLAYERS',
   imReady: "I'm Ready ✓",

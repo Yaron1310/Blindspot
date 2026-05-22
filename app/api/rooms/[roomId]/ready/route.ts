@@ -46,9 +46,11 @@ export async function POST(
 
     const playerNames = Object.keys(room.players);
     const readyCount = playerNames.filter((p) => room.players[p].ready).length;
-    const allReady = playerNames.length >= 2 && playerNames.every((p) => room.players[p].ready);
-    const maxPlayersReached = room.maxPlayers > 0 && readyCount >= room.maxPlayers && playerNames.length >= 2;
-    const shouldStart = maxPlayersReached || allReady;
+    // When a player limit is set, only auto-start when that exact count is reached.
+    // Without a limit, start when everyone in the room is ready (min 2 players).
+    const shouldStart = room.maxPlayers > 0
+      ? readyCount >= room.maxPlayers
+      : playerNames.length >= 2 && playerNames.every((p) => room.players[p].ready);
 
     if (shouldStart) {
       const gamezoneCategories = await loadGamezoneCategories(room);

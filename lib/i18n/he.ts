@@ -24,6 +24,7 @@ export const he: Record<TranslationKeys, string> = {
 
   // lobby
   backToRooms: 'חדרים →',
+  leave: 'יציאה →',
   round: 'סיבוב',
   playersLabel: 'שחקנים',
   imReady: 'מוכן ✓',

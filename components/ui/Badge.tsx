@@ -13,6 +13,6 @@ export function Badge({ variant, children }: BadgeProps) {
     you: 'bg-blue-900 text-blue-300 border border-blue-700',
   };
   return (
-    <span className={`px-2 py-0.5 rounded text-xs font-body ${styles[variant]}`}>{children}</span>
+    <span className={`px-1.5 py-0 rounded text-xs font-body ${styles[variant]}`}>{children}</span>
   );
 }

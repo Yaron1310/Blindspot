@@ -44,7 +44,7 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
 
         {/* Header */}
         <div className="grid grid-cols-3 items-center">
-          <button onClick={onLeave} className="text-muted hover:text-text transition-colors font-body text-sm text-left">
+          <button onClick={onLeave} className="text-muted hover:text-text transition-colors font-body text-sm text-start">
             {t('backToRooms')}
           </button>
           <div className="flex justify-center">
