@@ -40,6 +40,8 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
   // Derive polling interval from current phase + player state
   // Will be computed after first fetch gives us state
   const [pollingInterval, setPollingInterval] = useState<number | null>(null);
+  const [lobbyPollingExpired, setLobbyPollingExpired] = useState(false);
+  const lobbyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { state, error, refetch } = useGameState(roomId, playerName, pollingInterval);
 
@@ -47,14 +49,26 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
   const isReady = state?.players[playerName]?.ready ?? false;
   const hasVoted = state ? state.votes[playerName] !== undefined : false;
 
+  // Start a 2-minute timeout when entering lobby; cancel it when leaving lobby
+  useEffect(() => {
+    if (clientPhase === 'lobby') {
+      setLobbyPollingExpired(false);
+      lobbyTimeoutRef.current = setTimeout(() => setLobbyPollingExpired(true), 2 * 60 * 1000);
+    } else {
+      if (lobbyTimeoutRef.current) clearTimeout(lobbyTimeoutRef.current);
+      setLobbyPollingExpired(false);
+    }
+    return () => { if (lobbyTimeoutRef.current) clearTimeout(lobbyTimeoutRef.current); };
+  }, [clientPhase]);
+
   // Recompute polling interval whenever relevant state changes
   const nextInterval = useMemo(() => {
     if (!state) return null;
-    if (clientPhase === 'lobby') return 3000;          // always poll in lobby so joiners appear instantly
+    if (clientPhase === 'lobby' && !lobbyPollingExpired) return 3000;
     if (clientPhase === 'vote' && hasVoted) return 3000;
     if (clientPhase === 'result' && !isHost) return 3000;
     return null;
-  }, [clientPhase, hasVoted, isHost, state]);
+  }, [clientPhase, lobbyPollingExpired, hasVoted, isHost, state]);
 
   useEffect(() => {
     setPollingInterval(nextInterval);
