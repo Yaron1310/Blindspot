@@ -9,6 +9,7 @@ import { DiscussScreen } from '@/components/screens/DiscussScreen';
 import { VoteScreen } from '@/components/screens/VoteScreen';
 import { ResultScreen } from '@/components/screens/ResultScreen';
 import { Spinner } from '@/components/ui/Spinner';
+import { useLanguage } from '@/lib/i18n';
 
 type ClientPhase = 'lobby' | 'reveal' | 'discuss' | 'vote' | 'result';
 
@@ -30,6 +31,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
 
 export function GameContainer({ roomId, playerName }: GameContainerProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [clientPhase, setClientPhase] = useState<ClientPhase>('lobby');
   const [loading, setLoading] = useState(false);
   const prevServerPhase = useRef<string>('');
@@ -121,7 +123,7 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Spinner />
-          <p className="text-muted font-body text-sm">Loading...</p>
+          <p className="text-muted font-body text-sm">{t('loading')}</p>
         </div>
       </div>
     );
@@ -134,10 +136,8 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
         <BackButton onClick={handleLeave} />
         <div className="w-full max-w-md text-center space-y-6">
           <div className="text-5xl">⏳</div>
-          <h1 className="font-heading text-4xl text-text">ROUND IN PROGRESS</h1>
-          <p className="text-muted font-body">
-            A round is underway. You&apos;ll automatically join when it ends.
-          </p>
+          <h1 className="font-heading text-4xl text-text">{t('roundInProgress')}</h1>
+          <p className="text-muted font-body">{t('roundInProgressMsg')}</p>
           <div className="flex justify-center"><Spinner /></div>
           <p className="text-xs text-muted font-body">{state.roomName}</p>
         </div>

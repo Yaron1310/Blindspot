@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RoomList } from '@/components/ui/RoomList';
+import { useLanguage } from '@/lib/i18n';
 
 function AppHeader() {
   return (
@@ -30,6 +31,7 @@ interface RoomInfo {
 
 export default function RoomsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [playerName, setPlayerName] = useState('');
   const [rooms, setRooms] = useState<RoomInfo[]>([]);
   const [roomName, setRoomName] = useState('');
@@ -40,10 +42,7 @@ export default function RoomsPage() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem('playerName') || '';
-    if (!stored) {
-      router.push('/');
-      return;
-    }
+    if (!stored) { router.push('/'); return; }
     setPlayerName(stored);
   }, [router]);
 
@@ -52,27 +51,13 @@ export default function RoomsPage() {
       const res = await fetch('/api/rooms');
       if (!res.ok) return;
       const data = await res.json() as Record<string, {
-        name: string;
-        host: string;
-        phase: string;
-        playerCount: number;
-        mode: 'classic' | 'super';
-        ownerUsername?: string;
+        name: string; host: string; phase: string; playerCount: number; mode: 'classic' | 'super'; ownerUsername?: string;
       }>;
       const roomList: RoomInfo[] = Object.entries(data)
         .filter(([, room]) => !room.ownerUsername)
-        .map(([id, room]) => ({
-          id,
-          name: room.name,
-          host: room.host,
-          phase: room.phase,
-          playerCount: room.playerCount,
-          mode: room.mode,
-        }));
+        .map(([id, room]) => ({ id, name: room.name, host: room.host, phase: room.phase, playerCount: room.playerCount, mode: room.mode }));
       setRooms(roomList);
-    } catch {
-      // silently ignore
-    }
+    } catch { /* silently ignore */ }
   }, []);
 
   useEffect(() => {
@@ -82,14 +67,8 @@ export default function RoomsPage() {
   }, [fetchRooms]);
 
   const handleCreate = async () => {
-    if (!roomName.trim()) {
-      setError('Room name is required');
-      return;
-    }
-    if (!playerName) {
-      router.push('/');
-      return;
-    }
+    if (!roomName.trim()) { setError(t('roomNameRequired')); return; }
+    if (!playerName) { router.push('/'); return; }
     setCreating(true);
     setError('');
     try {
@@ -99,23 +78,17 @@ export default function RoomsPage() {
         body: JSON.stringify({ roomName: roomName.trim(), hostName: playerName, mode: 'super', maxPlayers: maxPlayers ? parseInt(maxPlayers, 10) : 0 }),
       });
       const data = await res.json() as { ok?: boolean; roomId?: string; error?: string };
-      if (!res.ok || !data.roomId) {
-        setError(data.error ?? 'Failed to create room');
-        return;
-      }
+      if (!res.ok || !data.roomId) { setError(data.error ?? 'Failed to create room'); return; }
       router.push(`/rooms/${data.roomId}`);
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('networkError'));
     } finally {
       setCreating(false);
     }
   };
 
   const handleJoin = async (roomId: string) => {
-    if (!playerName) {
-      router.push('/');
-      return;
-    }
+    if (!playerName) { router.push('/'); return; }
     setJoining(roomId);
     setError('');
     try {
@@ -125,13 +98,10 @@ export default function RoomsPage() {
         body: JSON.stringify({ name: playerName }),
       });
       const data = await res.json() as { ok?: boolean; error?: string };
-      if (!res.ok) {
-        setError(data.error ?? 'Failed to join room');
-        return;
-      }
+      if (!res.ok) { setError(data.error ?? 'Failed to join room'); return; }
       router.push(`/rooms/${roomId}`);
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('networkError'));
     } finally {
       setJoining(null);
     }
@@ -142,15 +112,12 @@ export default function RoomsPage() {
       <div className="max-w-md mx-auto space-y-4 pt-8">
         <AppHeader />
         <div className="flex items-center justify-between">
-          <h1 className="font-heading text-3xl text-text">GAME ROOMS</h1>
+          <h1 className="font-heading text-3xl text-text">{t('gameRoomsTitle')}</h1>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted font-body">Playing as</span>
+            <span className="text-xs text-muted font-body">{t('playingAs')}</span>
             <span className="text-sm text-text font-body font-medium">{playerName}</span>
-            <Link
-              href="/?play=1"
-              className="text-xs text-muted hover:text-text font-body transition-colors ml-1"
-            >
-              (change)
+            <Link href="/?play=1" className="text-xs text-muted hover:text-text font-body transition-colors ml-1">
+              {t('change')}
             </Link>
           </div>
         </div>
@@ -163,53 +130,41 @@ export default function RoomsPage() {
 
         {/* Create Room */}
         <Card className="space-y-4">
-          <h2 className="font-heading text-xl text-text">CREATE ROOM</h2>
+          <h2 className="font-heading text-xl text-text">{t('createRoomTitle')}</h2>
           <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">
-              Room Name
-            </label>
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('roomNameLabel')}</label>
             <input
               type="text"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-              placeholder="Friday Night..."
+              placeholder={t('roomNamePlaceholder')}
               maxLength={40}
               className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">
-              Number of Players
-            </label>
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('numPlayersLabel')}</label>
             <input
               type="number"
               value={maxPlayers}
               onChange={(e) => setMaxPlayers(e.target.value)}
-              placeholder="Leave empty for no limit"
+              placeholder={t('numPlayersPlaceholder')}
               min={2}
               max={20}
               className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
             />
-            <p className="text-xs text-muted font-body">Game starts automatically when this many players are ready</p>
+            <p className="text-xs text-muted font-body">{t('numPlayersHint')}</p>
           </div>
-          <Button
-            onClick={handleCreate}
-            disabled={creating || !roomName.trim()}
-            className="w-full"
-            variant="primary"
-          >
-            {creating ? 'Creating...' : 'Create Room'}
+          <Button onClick={handleCreate} disabled={creating || !roomName.trim()} className="w-full" variant="primary">
+            {creating ? t('creating') : t('createRoom')}
           </Button>
         </Card>
 
         {/* Open Rooms */}
         <Card className="space-y-4">
-          <h2 className="font-heading text-xl text-text">OPEN ROOMS</h2>
-          <RoomList
-            rooms={rooms}
-            onJoin={(id) => !joining && handleJoin(id)}
-          />
+          <h2 className="font-heading text-xl text-text">{t('openRoomsTitle')}</h2>
+          <RoomList rooms={rooms} onJoin={(id) => !joining && handleJoin(id)} />
         </Card>
       </div>
     </div>

@@ -1,3 +1,7 @@
+'use client';
+
+import { useLanguage } from '@/lib/i18n';
+
 interface SpeakingOrderProps {
   turnOrder: Record<string, number>;
   myName: string;
@@ -5,14 +9,15 @@ interface SpeakingOrderProps {
 }
 
 export function SpeakingOrder({ turnOrder, myName, myTurn }: SpeakingOrderProps) {
+  const { t } = useLanguage();
   const sorted = Object.entries(turnOrder).sort((a, b) => a[1] - b[1]);
 
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="font-heading text-xl text-text tracking-wide">SPEAKING ORDER</h3>
+        <h3 className="font-heading text-xl text-text tracking-wide">{t('speakingOrder')}</h3>
         {myTurn > 0 && (
-          <p className="text-sm text-muted font-body mt-1">You speak turn {myTurn}</p>
+          <p className="text-sm text-muted font-body mt-1">{t('youSpeakTurn', { n: myTurn })}</p>
         )}
       </div>
       <div className="space-y-2">
@@ -25,18 +30,11 @@ export function SpeakingOrder({ turnOrder, myName, myTurn }: SpeakingOrderProps)
                 isMe ? 'bg-yellow-950 border border-gold' : 'bg-surface border border-border'
               }`}
             >
-              <span
-                className={`font-heading text-lg w-6 text-center ${
-                  isMe ? 'text-gold' : 'text-muted'
-                }`}
-              >
+              <span className={`font-heading text-lg w-6 text-center ${isMe ? 'text-gold' : 'text-muted'}`}>
                 {turn}
               </span>
-              <span
-                className={`font-body ${isMe ? 'text-gold font-bold' : 'text-text'}`}
-              >
-                {name}
-                {isMe && ' (you)'}
+              <span className={`font-body ${isMe ? 'text-gold font-bold' : 'text-text'}`}>
+                {name}{isMe && ` ${t('youSuffix')}`}
               </span>
             </div>
           );

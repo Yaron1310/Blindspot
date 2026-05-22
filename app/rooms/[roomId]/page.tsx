@@ -4,10 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { GameContainer } from '@/components/GameContainer';
 import { Spinner } from '@/components/ui/Spinner';
+import { useLanguage } from '@/lib/i18n';
 
 export default function GamePage() {
   const router = useRouter();
   const params = useParams();
+  const { t } = useLanguage();
   const roomId = params.roomId as string;
 
   const [playerName, setPlayerName] = useState('');
@@ -32,9 +34,9 @@ export default function GamePage() {
       if (!res.ok) { setJoinError(data.error ?? 'Failed to join room'); return; }
       setJoined(true);
     } catch {
-      setJoinError('Network error. Please try again.');
+      setJoinError(t('networkError'));
     }
-  }, [roomId, router]);
+  }, [roomId, router, t]);
 
   useEffect(() => {
     if (playerName && !joined) joinRoom(playerName);
@@ -46,7 +48,7 @@ export default function GamePage() {
         <div className="text-center space-y-4">
           <p className="text-accent font-body">{joinError}</p>
           <button onClick={() => router.push('/rooms')} className="text-muted hover:text-text font-body text-sm transition-colors">
-            ← Back to Rooms
+            {t('backToRoomsLink')}
           </button>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default function GamePage() {
       <div className="min-h-screen bg-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Spinner />
-          <p className="text-muted font-body text-sm">Joining room...</p>
+          <p className="text-muted font-body text-sm">{t('joiningRoom')}</p>
         </div>
       </div>
     );

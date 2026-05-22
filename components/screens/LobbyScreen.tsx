@@ -6,6 +6,7 @@ import type { PlayerStateView } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { PlayerList } from '@/components/ui/PlayerList';
 import { HowToPlayModal } from '@/components/ui/HowToPlayModal';
+import { useLanguage } from '@/lib/i18n';
 
 interface LobbyScreenProps {
   state: PlayerStateView;
@@ -17,6 +18,7 @@ interface LobbyScreenProps {
 }
 
 export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave, loading }: LobbyScreenProps) {
+  const { t } = useLanguage();
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
   const isHost = state.host === playerName;
@@ -29,12 +31,10 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
   const canStart = playerNames.length >= 2;
   const maxPlayers = state.maxPlayers ?? 0;
 
+  const pl = (n: number) => n === 1 ? t('player') : t('players');
+
   const handleStartClick = () => {
-    if (allReady) {
-      onForceStart();
-    } else {
-      setShowStartConfirm(true);
-    }
+    if (allReady) { onForceStart(); } else { setShowStartConfirm(true); }
   };
 
   return (
@@ -45,12 +45,12 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
         {/* Header */}
         <div className="grid grid-cols-3 items-center">
           <button onClick={onLeave} className="text-muted hover:text-text transition-colors font-body text-sm text-left">
-            ← Rooms
+            {t('backToRooms')}
           </button>
           <div className="flex justify-center">
             <Link href="/" className="flex items-center gap-2 text-text hover:opacity-80 transition-opacity">
               <span className="text-xl">🕵️</span>
-              <span className="font-heading text-xl tracking-wider">BLINDSPOT</span>
+              <span className="font-heading text-xl tracking-wider">{t('appName')}</span>
             </Link>
           </div>
           <div />
@@ -59,13 +59,13 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
         {/* Room info */}
         <div className="bg-card border border-border rounded-[14px] p-6 flex gap-[15px] items-baseline">
           <h1 className="font-heading text-3xl text-text leading-none">{state.roomName}</h1>
-          <p className="text-sm text-muted font-body">Round {state.round + 1}</p>
+          <p className="text-sm text-muted font-body">{t('round')} {state.round + 1}</p>
         </div>
 
         {/* Player list */}
         <div className="bg-card border border-border rounded-[14px] p-6 space-y-4">
           <h2 className="font-heading text-xl text-text">
-            PLAYERS ({playerNames.length}{maxPlayers > 0 ? `/${maxPlayers}` : ''})
+            {t('playersLabel')} ({playerNames.length}{maxPlayers > 0 ? `/${maxPlayers}` : ''})
           </h2>
           <PlayerList players={state.players} host={state.host} myName={playerName} />
         </div>
@@ -74,7 +74,7 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
         <div className="space-y-3">
           {!isReady && (
             <Button onClick={onReady} disabled={loading} className="w-full text-lg py-4" variant="primary">
-              {loading ? 'Loading...' : "I'm Ready ✓"}
+              {loading ? t('loading') : t('imReady')}
             </Button>
           )}
 
@@ -85,30 +85,21 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
               className="w-full text-lg py-4"
               variant="secondary"
             >
-              {loading ? 'Starting...' : 'Start Game →'}
+              {loading ? t('starting') : t('startGame')}
             </Button>
           )}
 
           {showStartConfirm && (
             <div className="bg-card border border-border rounded-[14px] p-4 space-y-3">
               <p className="text-sm text-text font-body text-center">
-                Only {readyCount} {readyCount === 1 ? 'player is' : 'players are'} ready. Start anyway?
+                {t('onlyNReady', { n: readyCount, players: pl(readyCount) })}
               </p>
               <div className="flex gap-2">
-                <Button
-                  onClick={() => { setShowStartConfirm(false); onForceStart(); }}
-                  disabled={loading}
-                  className="flex-1"
-                  variant="primary"
-                >
-                  Start
+                <Button onClick={() => { setShowStartConfirm(false); onForceStart(); }} disabled={loading} className="flex-1" variant="primary">
+                  {t('start')}
                 </Button>
-                <Button
-                  onClick={() => setShowStartConfirm(false)}
-                  className="flex-1"
-                  variant="secondary"
-                >
-                  Cancel
+                <Button onClick={() => setShowStartConfirm(false)} className="flex-1" variant="secondary">
+                  {t('cancel')}
                 </Button>
               </div>
             </div>
@@ -116,24 +107,24 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
 
           <p className="text-center text-sm text-muted font-body">
             {allReady
-              ? 'Starting game...'
+              ? t('startingGame')
               : !isReady
-              ? `${waitingCount} player${waitingCount !== 1 ? 's' : ''} not ready`
-              : `Waiting for ${waitingCount} player${waitingCount !== 1 ? 's' : ''}...`}
+              ? t('notReady', { n: waitingCount, players: pl(waitingCount) })
+              : t('waitingFor', { n: waitingCount, players: pl(waitingCount) })}
           </p>
 
           <button
             onClick={() => setShowHowToPlay(true)}
             className="w-full text-muted hover:text-text font-body text-sm py-2 transition-colors"
           >
-            ? How to play
+            {t('howToPlay')}
           </button>
         </div>
 
         {/* Scoreboard */}
         {state.round > 0 && Object.keys(state.scores).length > 0 && (
           <div className="bg-card border border-border rounded-[14px] p-6 space-y-3">
-            <h2 className="font-heading text-xl text-text">SCORES</h2>
+            <h2 className="font-heading text-xl text-text">{t('scores')}</h2>
             <div className="space-y-2">
               {Object.entries(state.scores)
                 .sort((a, b) => b[1] - a[1])
