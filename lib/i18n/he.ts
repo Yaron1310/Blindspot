@@ -75,7 +75,8 @@ export const he: Record<TranslationKeys, string> = {
   spyRole: 'מרגל',
   secretWord: 'מילה סודית',
   blendIn: 'אתה לא יודע את המילה. השתלב!',
-  seenRole: 'ראיתי את התפקיד שלי ←',
+  seenRole: 'ראיתי את המילה שלי ←',
+  notAllJoined: 'רק {n} מתוך {max} שחקנים הצטרפו.',
 
   // speaking order
   speakingOrder: 'סדר הדיבור',

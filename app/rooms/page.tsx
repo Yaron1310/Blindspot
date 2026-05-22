@@ -133,9 +133,10 @@ export default function RoomsPage() {
         <Card className="space-y-4">
           <button
             onClick={() => setShowCreateForm((v) => !v)}
-            className="font-heading text-xl text-text w-full text-start hover:opacity-70 transition-opacity"
+            className="font-heading text-xl text-text w-full text-start hover:opacity-70 transition-opacity flex items-center gap-2"
           >
             {t('createRoomTitle')}
+            <span className={`text-muted text-base transition-transform duration-200 ${showCreateForm ? 'rotate-90' : ''}`}>›</span>
           </button>
           {showCreateForm && (
             <>

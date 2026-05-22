@@ -32,9 +32,10 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
   const maxPlayers = state.maxPlayers ?? 0;
 
   const pl = (n: number) => n === 1 ? t('player') : t('players');
+  const notAllJoined = maxPlayers > 0 && playerNames.length < maxPlayers;
 
   const handleStartClick = () => {
-    if (allReady) { onForceStart(); } else { setShowStartConfirm(true); }
+    if (allReady && !notAllJoined) { onForceStart(); } else { setShowStartConfirm(true); }
   };
 
   return (
@@ -91,9 +92,16 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
 
           {showStartConfirm && (
             <div className="bg-card border border-border rounded-[14px] p-4 space-y-3">
-              <p className="text-sm text-text font-body text-center">
-                {t('onlyNReady', { n: readyCount, players: pl(readyCount) })}
-              </p>
+              {notAllJoined && (
+                <p className="text-sm text-text font-body text-center">
+                  {t('notAllJoined', { n: playerNames.length, max: maxPlayers })}
+                </p>
+              )}
+              {!allReady && (
+                <p className="text-sm text-text font-body text-center">
+                  {t('onlyNReady', { n: readyCount, players: pl(readyCount) })}
+                </p>
+              )}
               <div className="flex gap-2">
                 <Button onClick={() => { setShowStartConfirm(false); onForceStart(); }} disabled={loading} className="flex-1" variant="primary">
                   {t('start')}

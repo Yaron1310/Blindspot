@@ -66,15 +66,15 @@ export function RevealScreen({ myRole, myWord, myTurn, turnOrder, category, mode
           )}
         </div>
 
+        <Button onClick={onContinue} className="w-full text-lg py-4" variant="secondary">
+          {t('seenRole')}
+        </Button>
+
         {Object.keys(turnOrder).length > 0 && (
           <div className="bg-card border border-border rounded-[14px] p-6">
             <SpeakingOrder turnOrder={turnOrder} myName={''} myTurn={myTurn} />
           </div>
         )}
-
-        <Button onClick={onContinue} className="w-full text-lg py-4" variant="secondary">
-          {t('seenRole')}
-        </Button>
       </div>
     </div>
   );
