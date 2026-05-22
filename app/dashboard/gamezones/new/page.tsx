@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/lib/i18n';
 import type { GamezoneCategory } from '@/lib/types';
 
 interface CategoryDraft {
@@ -15,6 +16,7 @@ interface CategoryDraft {
 
 export default function NewGamezonePage() {
   const router = useRouter();
+  const { t, isRtl } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const [gzName, setGzName] = useState('');
   const [categories, setCategories] = useState<CategoryDraft[]>([]);
@@ -60,11 +62,11 @@ export default function NewGamezonePage() {
 
   const handleSave = async () => {
     setError('');
-    if (!gzName.trim()) { setError('Gamezone name is required'); return; }
+    if (!gzName.trim()) { setError(t('gamezoneNameRequired')); return; }
 
     for (const cat of categories) {
-      if (!cat.name.trim()) { setError('All categories need a name'); return; }
-      if (cat.words.length < 2) { setError(`Category "${cat.name}" needs at least 2 words`); return; }
+      if (!cat.name.trim()) { setError(t('allCategoriesNeedName')); return; }
+      if (cat.words.length < 2) { setError(t('categoryNeedsWords', { name: cat.name })); return; }
     }
 
     setSaving(true);
@@ -74,7 +76,7 @@ export default function NewGamezonePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: gzName }),
       });
-      if (!res.ok) { setError('Failed to create gamezone'); return; }
+      if (!res.ok) { setError(t('failedToCreateGamezone')); return; }
       const gz = await res.json();
 
       const finalCategories: GamezoneCategory[] = categories.map((c) => ({
@@ -91,7 +93,7 @@ export default function NewGamezonePage() {
 
       router.push('/dashboard');
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('somethingWentWrong'));
     } finally {
       setSaving(false);
     }
@@ -103,13 +105,15 @@ export default function NewGamezonePage() {
     <div className="min-h-screen bg-bg p-4">
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
-          <Link href="/dashboard" className="text-muted hover:text-text font-body text-sm transition-colors">← Dashboard</Link>
-          <h1 className="font-heading text-4xl text-text mt-1">NEW GAMEZONE</h1>
+          <Link href="/dashboard" className="text-muted hover:text-text font-body text-sm transition-colors">
+            {isRtl ? `${t('dashboardLink')} →` : `← ${t('dashboardLink')}`}
+          </Link>
+          <h1 className="font-heading text-4xl text-text mt-1">{t('newGamezoneTitle')}</h1>
         </div>
 
         <div className="bg-card border border-border rounded-[14px] p-6 space-y-4">
           <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">Gamezone Name</label>
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('gamezoneNameLabel')}</label>
             <input
               type="text"
               value={gzName}
@@ -122,7 +126,7 @@ export default function NewGamezonePage() {
 
         {/* Categories */}
         <div className="space-y-3">
-          <h2 className="font-heading text-2xl text-text">CATEGORIES</h2>
+          <h2 className="font-heading text-2xl text-text">{t('categoriesSection')}</h2>
           {categories.map((cat) => (
             <div key={cat.id} className="bg-card border border-border rounded-[14px] p-5 space-y-4">
               <div className="flex items-center gap-2">
@@ -130,7 +134,7 @@ export default function NewGamezonePage() {
                   type="text"
                   value={cat.name}
                   onChange={(e) => updateCategoryName(cat.id, e.target.value)}
-                  placeholder="Category name"
+                  placeholder={t('categoryNamePlaceholder')}
                   className="flex-1 bg-bg border border-border rounded-[10px] px-3 py-2 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
                 />
                 <button
@@ -162,18 +166,18 @@ export default function NewGamezonePage() {
                   value={cat.wordInput}
                   onChange={(e) => updateWordInput(cat.id, e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addWord(cat.id); } }}
-                  placeholder="Add a word..."
+                  placeholder={t('addWordPlaceholder')}
                   className="flex-1 bg-bg border border-border rounded-[10px] px-3 py-2 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors text-sm"
                 />
                 <button
                   onClick={() => addWord(cat.id)}
                   className="bg-card hover:bg-border border border-border text-text font-body text-sm px-3 py-2 rounded-[10px] transition-colors"
                 >
-                  Add
+                  {t('addWord')}
                 </button>
               </div>
               {cat.words.length < 2 && (
-                <p className="text-xs text-muted font-body">Add at least 2 words to this category</p>
+                <p className="text-xs text-muted font-body">{t('minTwoWords')}</p>
               )}
             </div>
           ))}
@@ -182,7 +186,7 @@ export default function NewGamezonePage() {
             onClick={addCategory}
             className="w-full border border-dashed border-border rounded-[14px] py-4 text-muted hover:text-text hover:border-text font-body text-sm transition-colors"
           >
-            + Add Category
+            {t('addCategory')}
           </button>
         </div>
 
@@ -193,7 +197,7 @@ export default function NewGamezonePage() {
           disabled={saving}
           className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
         >
-          {saving ? 'Saving...' : 'Save Gamezone →'}
+          {saving ? t('saving') : isRtl ? `← ${t('saveGamezone')}` : `${t('saveGamezone')} →`}
         </button>
       </div>
     </div>
