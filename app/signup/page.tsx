@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import { useLanguage } from '@/lib/i18n';
 
 type Step = 'form' | 'verify';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [step, setStep] = useState<Step>('form');
 
   const [username, setUsername] = useState('');
@@ -33,9 +35,7 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) setUsernameError(data.error ?? 'Username unavailable');
-    } catch {
-      // ignore network errors on blur
-    }
+    } catch { /* ignore */ }
   };
 
   const handleEmailBlur = async () => {
@@ -49,26 +49,15 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) setEmailError(data.error ?? 'Email unavailable');
-    } catch {
-      // ignore network errors on blur
-    }
+    } catch { /* ignore */ }
   };
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     if (usernameError || emailError) return;
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
+    if (password !== confirmPassword) { setError(t('passwordsMismatch')); return; }
+    if (password.length < 6) { setError(t('passwordTooShort')); return; }
     setLoading(true);
     try {
       const res = await fetch('/api/auth/send-verification', {
@@ -77,10 +66,7 @@ export default function SignupPage() {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'Failed to send verification email');
-        return;
-      }
+      if (!res.ok) { setError(data.error ?? 'Failed to send verification email'); return; }
       setStep('verify');
     } catch {
       setError('Something went wrong. Please try again.');
@@ -100,10 +86,7 @@ export default function SignupPage() {
         body: JSON.stringify({ username, email, password, verificationCode }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'Signup failed');
-        return;
-      }
+      if (!res.ok) { setError(data.error ?? 'Signup failed'); return; }
       router.push('/dashboard');
     } catch {
       setError('Something went wrong. Please try again.');
@@ -117,16 +100,16 @@ export default function SignupPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <Link href="/" className="text-4xl block">🕵️</Link>
-          <h1 className="font-heading text-4xl text-text tracking-wider">BLINDSPOT</h1>
+          <h1 className="font-heading text-4xl text-text tracking-wider">{t('appName')}</h1>
           <p className="text-muted font-body text-sm">
-            {step === 'form' ? 'Create your account' : 'Check your email'}
+            {step === 'form' ? t('createAccountTitle') : t('checkEmailTitle')}
           </p>
         </div>
 
         {step === 'form' ? (
           <form onSubmit={handleSendCode} className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Username</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('usernameLabel')}</label>
               <input
                 type="text"
                 value={username}
@@ -140,12 +123,12 @@ export default function SignupPage() {
               />
               {usernameError
                 ? <p className="text-accent text-xs font-body">{usernameError}</p>
-                : <p className="text-xs text-muted font-body">3–20 chars, letters, numbers, hyphens</p>
+                : <p className="text-xs text-muted font-body">{t('usernameHint')}</p>
               }
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Email</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('emailLabel')}</label>
               <input
                 type="email"
                 value={email}
@@ -159,7 +142,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Password</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('passwordLabel')}</label>
               <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -167,11 +150,11 @@ export default function SignupPage() {
                 minLength={6}
                 className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
               />
-              <p className="text-xs text-muted font-body">At least 6 characters</p>
+              <p className="text-xs text-muted font-body">{t('passwordHint')}</p>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Confirm Password</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('confirmPasswordLabel')}</label>
               <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -187,17 +170,17 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
             >
-              {loading ? 'Sending code...' : 'Continue →'}
+              {loading ? t('sendingCode') : t('continueBtn')}
             </button>
           </form>
         ) : (
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="bg-card border border-border rounded-[14px] px-4 py-3 text-sm text-muted font-body">
-              We sent a 6-digit code to <span className="text-text">{email}</span>. Enter it below to verify your email.
+              {t('verifyEmailMsg', { email })}
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Verification Code</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('verificationCodeLabel')}</label>
               <input
                 type="text"
                 value={verificationCode}
@@ -216,7 +199,7 @@ export default function SignupPage() {
               disabled={loading || verificationCode.length < 6}
               className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
             >
-              {loading ? 'Creating account...' : 'Create Account →'}
+              {loading ? t('creatingAccount') : t('createAccountBtn')}
             </button>
 
             <button
@@ -224,15 +207,15 @@ export default function SignupPage() {
               onClick={() => { setStep('form'); setError(''); setVerificationCode(''); }}
               className="w-full text-sm text-muted hover:text-text font-body transition-colors"
             >
-              ← Back
+              {t('back')}
             </button>
           </form>
         )}
 
         <p className="text-center text-sm text-muted font-body">
-          Already have an account?{' '}
+          {t('alreadyHaveAccount')}{' '}
           <Link href="/login" className="text-text hover:text-accent transition-colors">
-            Sign in
+            {t('signInLink')}
           </Link>
         </p>
       </div>

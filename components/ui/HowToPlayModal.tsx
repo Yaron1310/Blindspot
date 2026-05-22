@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n';
 
 type LangCode = 'en' | 'he' | 'es' | 'ru' | 'ar';
 
@@ -98,7 +99,8 @@ interface HowToPlayModalProps {
 }
 
 export function HowToPlayModal({ onClose }: HowToPlayModalProps) {
-  const [lang, setLang] = useState<LangCode>('en');
+  const { lang: appLang } = useLanguage();
+  const [lang, setLang] = useState<LangCode>(appLang === 'he' ? 'he' : 'en');
   const c = CONTENT[lang];
 
   return (

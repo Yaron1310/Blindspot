@@ -1,4 +1,7 @@
+'use client';
+
 import { Badge } from './Badge';
+import { useLanguage } from '@/lib/i18n';
 
 interface PlayerListProps {
   players: Record<string, { ready: boolean; turn: number }>;
@@ -7,16 +10,17 @@ interface PlayerListProps {
 }
 
 function PlayerRow({ name, player, host, myName }: { name: string; player: { ready: boolean; turn: number }; host: string; myName: string }) {
+  const { t } = useLanguage();
   return (
     <div className="flex items-center justify-between bg-surface border border-border rounded-[14px] px-4 py-2">
       <span className="font-body text-text font-medium text-sm truncate">{name}</span>
       <div className="flex items-center gap-1 shrink-0">
-        {name === myName && <Badge variant="you">YOU</Badge>}
-        {name === host && <Badge variant="host">HOST</Badge>}
+        {name === myName && <Badge variant="you">{t('badgeYou')}</Badge>}
+        {name === host && <Badge variant="host">{t('badgeHost')}</Badge>}
         {player.ready ? (
-          <Badge variant="ready">Ready</Badge>
+          <Badge variant="ready">{t('badgeReady')}</Badge>
         ) : (
-          <Badge variant="waiting">Waiting</Badge>
+          <Badge variant="waiting">{t('badgeWaiting')}</Badge>
         )}
       </div>
     </div>

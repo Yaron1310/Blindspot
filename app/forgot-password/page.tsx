@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
 
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -20,10 +22,7 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'Something went wrong');
-        return;
-      }
+      if (!res.ok) { setError(data.error ?? 'Something went wrong'); return; }
       setSent(true);
     } catch {
       setError('Something went wrong. Please try again.');
@@ -37,26 +36,26 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <Link href="/" className="text-4xl block">🕵️</Link>
-          <h1 className="font-heading text-4xl text-text tracking-wider">BLINDSPOT</h1>
-          <p className="text-muted font-body text-sm">Reset your password</p>
+          <h1 className="font-heading text-4xl text-text tracking-wider">{t('appName')}</h1>
+          <p className="text-muted font-body text-sm">{t('resetPasswordTitle')}</p>
         </div>
 
         {sent ? (
           <div className="space-y-4">
             <div className="bg-card border border-border rounded-[14px] px-4 py-4 text-sm text-muted font-body text-center">
-              If an account exists for <span className="text-text">{email}</span>, we&apos;ve sent a reset link. Check your inbox.
+              {t('sentResetLink', { email })}
             </div>
             <Link
               href="/login"
               className="block w-full text-center bg-accent hover:bg-red-600 text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
             >
-              Back to Sign In
+              {t('backToSignIn')}
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Email</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('emailLabel')}</label>
               <input
                 type="email"
                 value={email}
@@ -74,12 +73,12 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
             >
-              {loading ? 'Sending...' : 'Send Reset Link →'}
+              {loading ? t('sending') : t('sendResetLink')}
             </button>
 
             <p className="text-center text-sm text-muted font-body">
               <Link href="/login" className="text-text hover:text-accent transition-colors">
-                ← Back to Sign In
+                {t('backToSignInArrow')}
               </Link>
             </p>
           </form>

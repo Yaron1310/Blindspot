@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import { useLanguage } from '@/lib/i18n';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,10 +25,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? 'Login failed');
-        return;
-      }
+      if (!res.ok) { setError(data.error ?? 'Login failed'); return; }
       router.push('/dashboard');
     } catch {
       setError('Something went wrong. Please try again.');
@@ -40,13 +39,13 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center space-y-2">
           <Link href="/" className="text-4xl block">🕵️</Link>
-          <h1 className="font-heading text-4xl text-text tracking-wider">BLINDSPOT</h1>
-          <p className="text-muted font-body text-sm">Sign in to your account</p>
+          <h1 className="font-heading text-4xl text-text tracking-wider">{t('appName')}</h1>
+          <p className="text-muted font-body text-sm">{t('signInTitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="block text-xs text-muted font-body uppercase tracking-widest">Email</label>
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('emailLabel')}</label>
             <input
               type="email"
               value={email}
@@ -59,9 +58,9 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs text-muted font-body uppercase tracking-widest">Password</label>
+              <label className="block text-xs text-muted font-body uppercase tracking-widest">{t('passwordLabel')}</label>
               <Link href="/forgot-password" className="text-xs text-muted hover:text-accent font-body transition-colors">
-                Forgot password?
+                {t('forgotPassword')}
               </Link>
             </div>
             <PasswordInput
@@ -79,14 +78,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-accent hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-body font-medium py-4 rounded-[14px] transition-all text-lg"
           >
-            {loading ? 'Signing in...' : 'Sign In →'}
+            {loading ? t('signingIn') : t('signIn')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted font-body">
-          Don&apos;t have an account?{' '}
+          {t('noAccount')}{' '}
           <Link href="/signup" className="text-text hover:text-accent transition-colors">
-            Sign up
+            {t('signUpLink')}
           </Link>
         </p>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/lib/i18n';
 
 interface PasswordInputProps {
   value: string;
@@ -13,6 +14,7 @@ interface PasswordInputProps {
 
 export function PasswordInput({ value, onChange, placeholder = '••••••••', required, minLength, className }: PasswordInputProps) {
   const [show, setShow] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="relative">
@@ -29,7 +31,7 @@ export function PasswordInput({ value, onChange, placeholder = '•••••�
         type="button"
         onClick={() => setShow((v) => !v)}
         tabIndex={-1}
-        aria-label={show ? 'Hide password' : 'Show password'}
+        aria-label={show ? t('hidePassword') : t('showPassword')}
         className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-text transition-colors"
       >
         {show ? <EyeSlashIcon /> : <EyeIcon />}

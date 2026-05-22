@@ -1,6 +1,7 @@
 'use client';
 
 import { Spinner } from '@/components/ui/Spinner';
+import { useLanguage } from '@/lib/i18n';
 
 interface VoteScreenProps {
   players: Record<string, { ready: boolean; turn: number }>;
@@ -14,50 +15,43 @@ interface VoteScreenProps {
 }
 
 export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onVote, loading }: VoteScreenProps) {
+  const { t } = useLanguage();
   const playerNames = Object.keys(players);
   const isClassicSpy = mode === 'classic' && myRole === 'spy';
 
-  // Classic spy waiting screen
   if (isClassicSpy) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center space-y-6">
           <div className="text-6xl">🕵️</div>
-          <h1 className="font-heading text-4xl text-accent">YOU ARE THE SPY</h1>
-          <p className="text-muted font-body">Waiting for all players to vote...</p>
-          <div className="flex justify-center">
-            <Spinner />
-          </div>
+          <h1 className="font-heading text-4xl text-accent">{t('youAreTheSpy')}</h1>
+          <p className="text-muted font-body">{t('waitingToVote')}</p>
+          <div className="flex justify-center"><Spinner /></div>
         </div>
       </div>
     );
   }
 
-  // After voting — waiting for others
   if (hasVoted) {
     const votedFor = votes[myName];
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center space-y-6">
-          <h1 className="font-heading text-4xl text-text">VOTE CAST</h1>
+          <h1 className="font-heading text-4xl text-text">{t('voteCast')}</h1>
           {votedFor && (
             <p className="text-muted font-body">
-              You voted for <span className="text-text font-bold">{votedFor}</span>
+              {t('youVotedFor', { name: votedFor })}
             </p>
           )}
-          <p className="text-muted font-body">Waiting for others...</p>
-          <div className="flex justify-center">
-            <Spinner />
-          </div>
+          <p className="text-muted font-body">{t('waitingForOthers')}</p>
+          <div className="flex justify-center"><Spinner /></div>
         </div>
       </div>
     );
   }
 
-  const title = mode === 'super' ? 'Who has the different word?' : 'Who is the spy?';
+  const title = mode === 'super' ? t('whoDifferentWord') : t('whoIsTheSpy');
 
-  // Super mode: "Me" first (gold), then everyone else
-  // Classic mode: everyone except self
   let candidates: string[] = [];
   if (mode === 'super') {
     candidates = [myName, ...playerNames.filter((n) => n !== myName)];
@@ -70,9 +64,8 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
       <div className="w-full max-w-md space-y-4">
         <div className="text-center space-y-2">
           <h1 className="font-heading text-3xl text-text">{title}</h1>
-          <p className="text-muted font-body text-sm">Tap a player to cast your vote</p>
+          <p className="text-muted font-body text-sm">{t('tapToVote')}</p>
         </div>
-
         <div className="grid grid-cols-2 gap-3">
           {candidates.map((name) => {
             const isMe = name === myName;
@@ -89,7 +82,7 @@ export function VoteScreen({ players, myName, myRole, mode, hasVoted, votes, onV
                   disabled:opacity-50 disabled:cursor-not-allowed
                 `}
               >
-                {isMe ? '👤 Me' : name}
+                {isMe ? t('meOption') : name}
               </button>
             );
           })}
