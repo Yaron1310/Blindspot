@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { PlayerStateView } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { PlayerList } from '@/components/ui/PlayerList';
-import { HowToPlayModal } from '@/components/ui/HowToPlayModal';
+import { HowToPlayLanguageBar } from '@/components/ui/HowToPlayLanguageBar';
 import { useLanguage } from '@/lib/i18n';
 
 interface LobbyScreenProps {
@@ -19,7 +19,6 @@ interface LobbyScreenProps {
 
 export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave, loading }: LobbyScreenProps) {
   const { t, isRtl } = useLanguage();
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showStartConfirm, setShowStartConfirm] = useState(false);
   const isHost = state.host === playerName;
   const myPlayer = state.players[playerName];
@@ -40,7 +39,6 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
       <div className="w-full max-w-md space-y-4 pt-4">
 
         {/* Header */}
@@ -121,12 +119,7 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
               : t('waitingFor', { n: waitingCount, players: pl(waitingCount) })}
           </p>
 
-          <button
-            onClick={() => setShowHowToPlay(true)}
-            className="w-full text-muted hover:text-text font-body text-sm py-2 transition-colors"
-          >
-            {t('howToPlay')}
-          </button>
+          <HowToPlayLanguageBar />
         </div>
 
         {/* Scoreboard */}
