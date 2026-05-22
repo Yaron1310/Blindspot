@@ -50,11 +50,11 @@ export function GameContainer({ roomId, playerName }: GameContainerProps) {
   // Recompute polling interval whenever relevant state changes
   const nextInterval = useMemo(() => {
     if (!state) return null;
-    if (clientPhase === 'lobby' && isReady) return 3000;
+    if (clientPhase === 'lobby') return 3000;          // always poll in lobby so joiners appear instantly
     if (clientPhase === 'vote' && hasVoted) return 3000;
     if (clientPhase === 'result' && !isHost) return 3000;
     return null;
-  }, [clientPhase, isReady, hasVoted, isHost, state]);
+  }, [clientPhase, hasVoted, isHost, state]);
 
   useEffect(() => {
     setPollingInterval(nextInterval);

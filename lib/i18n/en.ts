@@ -73,7 +73,8 @@ export const en = {
   spyRole: 'SPY',
   secretWord: 'SECRET WORD',
   blendIn: "You don't know the word. Blend in!",
-  seenRole: "I've Seen My Role →",
+  seenRole: "I've Seen My Word →",
+  notAllJoined: 'Only {n} of {max} players have joined.',
 
   // speaking order
   speakingOrder: 'SPEAKING ORDER',
