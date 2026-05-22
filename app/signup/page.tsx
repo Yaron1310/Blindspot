@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 
 type Step = 'form' | 'verify';
 
@@ -159,11 +160,9 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <label className="block text-xs text-muted font-body uppercase tracking-widest">Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 required
                 minLength={6}
                 className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
@@ -173,11 +172,9 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <label className="block text-xs text-muted font-body uppercase tracking-widest">Confirm Password</label>
-              <input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
                 required
                 className="w-full bg-card border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
               />

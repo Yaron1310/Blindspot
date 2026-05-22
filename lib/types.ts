@@ -33,6 +33,7 @@ export interface RoomState {
     mode: 'classic' | 'super';
   } | null;
   turnOrder: { [name: string]: number };
+  maxPlayers: number;
   readyStartedAt: number;
   updatedAt: number;
   ownerUsername?: string;
@@ -62,6 +63,7 @@ export interface PlayerStateView {
   category: string;
   result: (RoomState['result'] & { tally: Record<string, number> }) | null;
   turnOrder: { [name: string]: number };
+  maxPlayers: number;
   readyStartedAt: number;
   ownerUsername?: string;
 }

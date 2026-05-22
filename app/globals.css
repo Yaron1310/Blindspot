@@ -26,6 +26,10 @@ body {
   box-sizing: border-box;
 }
 
+.items-center {
+  align-items: start;
+}
+
 .logyx-footer {
   position: fixed;
   bottom: 12px;

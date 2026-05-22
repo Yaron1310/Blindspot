@@ -50,8 +50,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { roomName: string; hostName: string; mode: 'classic' | 'super'; ownerUsername?: string; gamezoneId?: string };
-    const { roomName, hostName, mode, ownerUsername, gamezoneId } = body;
+    const body = await request.json() as { roomName: string; hostName: string; mode: 'classic' | 'super'; ownerUsername?: string; gamezoneId?: string; maxPlayers?: number };
+    const { roomName, hostName, mode, ownerUsername, gamezoneId, maxPlayers } = body;
 
     if (!roomName || roomName.trim().length === 0) {
       return NextResponse.json({ error: 'Room name is required' }, { status: 400 });
@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       scores: { [hostName.trim()]: 0 },
       result: null,
       turnOrder: {},
+      maxPlayers: typeof maxPlayers === 'number' && maxPlayers >= 2 ? maxPlayers : 0,
       readyStartedAt: 0,
       updatedAt: Date.now(),
       ...(ownerUsername ? { ownerUsername } : {}),

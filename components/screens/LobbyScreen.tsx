@@ -18,13 +18,24 @@ interface LobbyScreenProps {
 
 export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave, loading }: LobbyScreenProps) {
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showStartConfirm, setShowStartConfirm] = useState(false);
   const isHost = state.host === playerName;
   const myPlayer = state.players[playerName];
   const isReady = myPlayer?.ready ?? false;
   const playerNames = Object.keys(state.players);
+  const readyCount = playerNames.filter((p) => state.players[p].ready).length;
   const allReady = playerNames.length > 0 && playerNames.every((p) => state.players[p].ready);
   const waitingCount = playerNames.filter((p) => !state.players[p].ready).length;
   const canStart = playerNames.length >= 2;
+  const maxPlayers = state.maxPlayers ?? 0;
+
+  const handleStartClick = () => {
+    if (allReady) {
+      onForceStart();
+    } else {
+      setShowStartConfirm(true);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
@@ -46,17 +57,16 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
         </div>
 
         {/* Room info */}
-        <div className="bg-card border border-border rounded-[14px] p-6 space-y-3">
-          <div>
-            <h1 className="font-heading text-3xl text-text leading-none">{state.roomName}</h1>
-            <p className="text-xs text-muted font-body mt-1">Room ID: {state.roomId}</p>
-          </div>
-          {state.round > 0 && <p className="text-sm text-muted font-body">Round {state.round}</p>}
+        <div className="bg-card border border-border rounded-[14px] p-6 flex gap-[15px] items-baseline">
+          <h1 className="font-heading text-3xl text-text leading-none">{state.roomName}</h1>
+          <p className="text-sm text-muted font-body">Round {state.round + 1}</p>
         </div>
 
         {/* Player list */}
         <div className="bg-card border border-border rounded-[14px] p-6 space-y-4">
-          <h2 className="font-heading text-xl text-text">PLAYERS ({playerNames.length})</h2>
+          <h2 className="font-heading text-xl text-text">
+            PLAYERS ({playerNames.length}{maxPlayers > 0 ? `/${maxPlayers}` : ''})
+          </h2>
           <PlayerList players={state.players} host={state.host} myName={playerName} />
         </div>
 
@@ -70,13 +80,38 @@ export function LobbyScreen({ state, playerName, onReady, onForceStart, onLeave,
 
           {isHost && (
             <Button
-              onClick={onForceStart}
+              onClick={handleStartClick}
               disabled={loading || !canStart}
               className="w-full text-lg py-4"
               variant="secondary"
             >
               {loading ? 'Starting...' : 'Start Game →'}
             </Button>
+          )}
+
+          {showStartConfirm && (
+            <div className="bg-card border border-border rounded-[14px] p-4 space-y-3">
+              <p className="text-sm text-text font-body text-center">
+                Only {readyCount} {readyCount === 1 ? 'player is' : 'players are'} ready. Start anyway?
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => { setShowStartConfirm(false); onForceStart(); }}
+                  disabled={loading}
+                  className="flex-1"
+                  variant="primary"
+                >
+                  Start
+                </Button>
+                <Button
+                  onClick={() => setShowStartConfirm(false)}
+                  className="flex-1"
+                  variant="secondary"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
           )}
 
           <p className="text-center text-sm text-muted font-body">

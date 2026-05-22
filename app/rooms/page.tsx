@@ -33,6 +33,7 @@ export default function RoomsPage() {
   const [playerName, setPlayerName] = useState('');
   const [rooms, setRooms] = useState<RoomInfo[]>([]);
   const [roomName, setRoomName] = useState('');
+  const [maxPlayers, setMaxPlayers] = useState('');
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -95,7 +96,7 @@ export default function RoomsPage() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: roomName.trim(), hostName: playerName, mode: 'super' }),
+        body: JSON.stringify({ roomName: roomName.trim(), hostName: playerName, mode: 'super', maxPlayers: maxPlayers ? parseInt(maxPlayers, 10) : 0 }),
       });
       const data = await res.json() as { ok?: boolean; roomId?: string; error?: string };
       if (!res.ok || !data.roomId) {
@@ -176,6 +177,21 @@ export default function RoomsPage() {
               maxLength={40}
               className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
             />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs text-muted font-body uppercase tracking-widest">
+              Number of Players
+            </label>
+            <input
+              type="number"
+              value={maxPlayers}
+              onChange={(e) => setMaxPlayers(e.target.value)}
+              placeholder="Leave empty for no limit"
+              min={2}
+              max={20}
+              className="w-full bg-surface border border-border rounded-[14px] px-4 py-3 text-text font-body placeholder-muted focus:outline-none focus:border-accent transition-colors"
+            />
+            <p className="text-xs text-muted font-body">Game starts automatically when this many players are ready</p>
           </div>
           <Button
             onClick={handleCreate}
