@@ -11,9 +11,9 @@ export const en = {
   selectLanguage: 'Select language',
 
   // home
-  tagline: 'A word-based social deduction game',
+  tagline: 'A word-based social game',
   playRandom: '▶ Play a random game',
-  loginSignup: 'Login / Sign Up to create custom games',
+  loginSignup: 'Login / Sign Up to create your custom words',
   yourName: 'Your Name',
   namePlaceholder: 'Enter your name...',
   nameRequired: 'Please enter your name',
