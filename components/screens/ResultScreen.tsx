@@ -2,7 +2,6 @@
 
 import type { RoomState } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
-import { TallyBars } from '@/components/ui/TallyBars';
 import { Scoreboard } from '@/components/ui/Scoreboard';
 
 interface ResultScreenProps {
@@ -57,17 +56,11 @@ export function ResultScreen({ result, scores, votes, isHost, playerName, onNewR
         {/* My result this round */}
         <div className={`rounded-[14px] border-2 px-4 py-3 text-center ${iGotPoint ? 'bg-green-950 border-green' : 'bg-surface border-border'}`}>
           <p className={`font-heading text-2xl ${iGotPoint ? 'text-green' : 'text-muted'}`}>
-            {iGotPoint ? '+1 point' : '+0 points'}
+            {iGotPoint ? 'You found the spy: +1 point' : "You didn't find the spy: +0 points"}
           </p>
           <p className="text-xs text-muted font-body mt-1">
             {myVote ? `You voted for ${myVote}` : 'You did not vote'}
           </p>
-        </div>
-
-        {/* Vote Tally */}
-        <div className="bg-card border border-border rounded-[14px] p-6 space-y-3">
-          <h2 className="font-heading text-xl text-text">VOTE TALLY</h2>
-          <TallyBars tally={result.tally} />
         </div>
 
         {/* Scoreboard */}
