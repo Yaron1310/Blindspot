@@ -19,12 +19,13 @@ interface GameContainerProps {
 }
 
 function BackButton({ onClick }: { onClick: () => void }) {
+  const { t, isRtl } = useLanguage();
   return (
     <button
       onClick={onClick}
-      className="absolute top-4 left-4 text-muted hover:text-text transition-colors font-body text-sm flex items-center gap-1 z-10"
+      className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} text-muted hover:text-text transition-colors font-body text-sm flex items-center gap-1 z-10`}
     >
-      ← Leave
+      {t('leave')}
     </button>
   );
 }

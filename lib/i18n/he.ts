@@ -13,9 +13,9 @@ export const he: Record<TranslationKeys, string> = {
   selectLanguage: 'בחר שפה',
 
   // home
-  tagline: 'משחק ניכוי חברתי מבוסס מילים',
+  tagline: 'משחק חברתי מבוסס מילים',
   playRandom: '▶ שחק משחק אקראי',
-  loginSignup: 'כניסה / הרשמה ליצירת משחקים מותאמים',
+  loginSignup: 'כניסה / הרשמה ליצירת מילים משלך',
   yourName: 'השם שלך',
   namePlaceholder: 'הכנס שם...',
   nameRequired: 'נא להכניס שם',
@@ -24,6 +24,7 @@ export const he: Record<TranslationKeys, string> = {
 
   // lobby
   backToRooms: 'חדרים →',
+  leave: 'יציאה →',
   round: 'סיבוב',
   playersLabel: 'שחקנים',
   imReady: 'מוכן ✓',
